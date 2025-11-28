@@ -362,7 +362,7 @@ ggboxplot(dt,x="cell_type",y="Score",fill = "groups",xlab = "Cell Type")+
 
 We first performed WGCNA analysis, using different progression stages of breast cancer development as phenotypic variables to identify gene modules associated with cancer progression. Secondly, we conducted temporal differential gene analysis to identify genes whose expression levels gradually increased as breast cancer progressed. These two results were combined to form candidate genes for the first stage. Next, we used three machine learning methods, including lasso regression, random forest, and Boruta, to model the expression of these genes and patient prognosis on the TCGA dataset. By analyzing the importance of model variables, we can identify genes that are more important for predicting prognosis. Finally, seven genes were selected for further validation.
 
-![workflow](/home/wt/Breast_cancer_dev/report/workflow.png)
+![](/home/wt/Breast_cancer_dev/report/workflow.png)
 
 First, perform WGCNA analysis:
 
@@ -406,9 +406,7 @@ saveRDS(net,file = "data/WGCNA_res_conF.rds")
 saveRDS(exp_filt, file = "data/WGCNA_exp_conF.rds")
 ```
 
-```{r eval=TRUE,warning=FALSE,include=FALSE}
-knitr::include_graphics("choose_power.png")
-```
+![](~/Breast_cancer_dev/report/choose_power.png)
 
 ```{r}
 library(BioNERO)
@@ -533,9 +531,7 @@ gene_cof$genes <- rownames(gene_cof)
 saveRDS(gene_cof, "data/lasso_res.rds")
 ```
 
-```{r eval=TRUE,warning=FALSE,include=FALSE}
-knitr::include_graphics("lasso_lamba.png")
-```
+![](/home/wt/Breast_cancer_dev/report/lasso_lamba.png)
 
 2. Random Forest:
 
