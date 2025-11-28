@@ -1,1 +1,1 @@
-The data files are stored in Zenodo (https://zenodo.org/records/17745084), and the expression data of patients need to be requested from corresponding author.
+The data files are stored in Zenodo (https://zenodo.org/records/17745084), and the expression data (TPM and counts) of patients need to be requested from corresponding author.
