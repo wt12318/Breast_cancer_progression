@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="generator" content="pandoc" />
+
+        <meta name="author" content="Tao Wu" />
+    
+        <meta name="date" content="2025-11-28" />
+    
+    <title>Discovering key genes using transcriptome from different stages of breast cancer development</title>
+
+        <script src="report_main_files/header-attrs-2.27/header-attrs.js"></script>
+        <script src="report_main_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="report_main_files/bootstrap-3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+        <script src="report_main_files/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+        <script src="report_main_files/navigation-1.1/tabsets.js"></script>
+        <link href="report_main_files/readthedown-0.1/readthedown.css" rel="stylesheet" />
+        <link href="report_main_files/readthedown-0.1/readthedown_fonts_embed.css" rel="stylesheet" />
+        <script src="report_main_files/readthedown-0.1/readthedown.js"></script>
+    
+    
+        <style type="text/css">code{white-space: pre;}</style>
+    <style type="text/css">
+      pre > code.sourceCode { white-space: pre; position: relative; }
+      pre > code.sourceCode > span { line-height: 1.25; }
+      pre > code.sourceCode > span:empty { height: 1.2em; }
+      .sourceCode { overflow: visible; }
+      code.sourceCode > span { color: inherit; text-decoration: inherit; }
+      div.sourceCode { margin: 1em 0; }
+      pre.sourceCode { margin: 0; }
+      @media screen {
+      div.sourceCode { overflow: auto; }
+      }
+      @media print {
+      pre > code.sourceCode { white-space: pre-wrap; }
+      pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+      }
+      pre.numberSource code
+        { counter-reset: source-line 0; }
+      pre.numberSource code > span
+        { position: relative; left: -4em; counter-increment: source-line; }
+      pre.numberSource code > span > a:first-child::before
+        { content: counter(source-line);
+          position: relative; left: -1em; text-align: right; vertical-align: baseline;
+          border: none; display: inline-block;
+          -webkit-touch-callout: none; -webkit-user-select: none;
+          -khtml-user-select: none; -moz-user-select: none;
+          -ms-user-select: none; user-select: none;
+          padding: 0 4px; width: 4em;
+          background-color: #ffffff;
+          color: #a0a0a0;
+        }
+      pre.numberSource { margin-left: 3em; border-left: 1px solid #a0a0a0;  padding-left: 4px; }
+      div.sourceCode
+        { color: #1f1c1b; background-color: #ffffff; }
+      @media screen {
+      pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+      }
+      code span { color: #1f1c1b; } /* Normal */
+      code span.al { color: #bf0303; background-color: #f7e6e6; font-weight: bold; } /* Alert */
+      code span.an { color: #ca60ca; } /* Annotation */
+      code span.at { color: #0057ae; } /* Attribute */
+      code span.bn { color: #b08000; } /* BaseN */
+      code span.bu { color: #644a9b; font-weight: bold; } /* BuiltIn */
+      code span.cf { color: #1f1c1b; font-weight: bold; } /* ControlFlow */
+      code span.ch { color: #924c9d; } /* Char */
+      code span.cn { color: #aa5500; } /* Constant */
+      code span.co { color: #898887; } /* Comment */
+      code span.cv { color: #0095ff; } /* CommentVar */
+      code span.do { color: #607880; } /* Documentation */
+      code span.dt { color: #0057ae; } /* DataType */
+      code span.dv { color: #b08000; } /* DecVal */
+      code span.er { color: #bf0303; text-decoration: underline; } /* Error */
+      code span.ex { color: #0095ff; font-weight: bold; } /* Extension */
+      code span.fl { color: #b08000; } /* Float */
+      code span.fu { color: #644a9b; } /* Function */
+      code span.im { color: #ff5500; } /* Import */
+      code span.in { color: #b08000; } /* Information */
+      code span.kw { color: #1f1c1b; font-weight: bold; } /* Keyword */
+      code span.op { color: #1f1c1b; } /* Operator */
+      code span.ot { color: #006e28; } /* Other */
+      code span.pp { color: #006e28; } /* Preprocessor */
+      code span.re { color: #0057ae; background-color: #e0e9f8; } /* RegionMarker */
+      code span.sc { color: #3daee9; } /* SpecialChar */
+      code span.ss { color: #ff5500; } /* SpecialString */
+      code span.st { color: #bf0303; } /* String */
+      code span.va { color: #0057ae; } /* Variable */
+      code span.vs { color: #bf0303; } /* VerbatimString */
+      code span.wa { color: #bf0303; } /* Warning */
+    </style>
+    
+    
+    <!-- tabsets -->
+    <script>
+      $(document).ready(function () {
+	  window.buildTabsets("toc");
+      });
+      $(document).ready(function () {
+	  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+	      $(this).parent().toggleClass('nav-tabs-open')
+	  });
+      });
+    </script>
+
+    <!-- code folding -->
+    
+    <!-- code download -->
+    
+    <!-- tabsets dropdown -->
+
+    <style type="text/css">
+      .tabset-dropdown > .nav-tabs {
+	  display: inline-table;
+	  max-height: 500px;
+	  min-height: 44px;
+	  overflow-y: auto;
+	  background: white;
+	  border: 1px solid #ddd;
+	  border-radius: 4px;
+      }
+      
+      .tabset-dropdown > .nav-tabs > li.active:before {
+	  content: "";
+	  font-family: 'Glyphicons Halflings';
+	  display: inline-block;
+	  padding: 10px;
+	  border-right: 1px solid #ddd;
+      }
+      
+      .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+	  content: "&#xe258;";
+	  border: none;
+      }
+      
+      .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+	  content: "";
+	  font-family: 'Glyphicons Halflings';
+	  display: inline-block;
+	  padding: 10px;
+	  border-right: 1px solid #ddd;
+      }
+      
+      .tabset-dropdown > .nav-tabs > li.active {
+	  display: block;
+      }
+
+      .tabset-dropdown > .nav-tabs > li.active a {
+  	  padding: 0 15px !important;
+      }
+
+      .tabset-dropdown > .nav-tabs > li > a,
+      .tabset-dropdown > .nav-tabs > li > a:focus,
+      .tabset-dropdown > .nav-tabs > li > a:hover {
+	  border: none;
+	  display: inline-block;
+	  border-radius: 4px;
+	  background-color: transparent;
+      }
+      
+      .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+	  display: block;
+	  float: none;
+      }
+      
+      .tabset-dropdown > .nav-tabs > li {
+	  display: none;
+	  margin-left: 0 !important;
+      }
+    </style>
+    
+</head>
+
+<body class="preload">
+
+   	
+         <!-- readthedown start -->   
+   <div id="content" data-toggle="wy-nav-shift">
+     <nav id="nav-top" role="navigation" aria-label="top navigation">
+       <a role="button" href="#" data-toggle="wy-nav-top"><span class="glyphicon glyphicon-menu-hamburger"></span></a>
+     </nav>
+         
+   
+        
+      <h1 class="title">Discovering key genes using transcriptome from
+different stages of breast cancer development</h1>
+      
+         <!-- readthedown authors -->
+   <div id="sidebar">
+    <h2><a href="#content">Discovering key genes using transcriptome
+from different stages of breast cancer development</a></h2>
+    <div id="toc">
+      <ul>
+      <li><a
+      href="#differences-in-different-stages-of-breast-cancer-development"
+      id="toc-differences-in-different-stages-of-breast-cancer-development">Differences
+      in different stages of breast cancer development</a></li>
+      <li><a
+      href="#identify-genes-important-for-the-development-and-progression-of-breast-cancer"
+      id="toc-identify-genes-important-for-the-development-and-progression-of-breast-cancer">Identify
+      genes important for the development and progression of breast
+      cancer</a></li>
+      <li><a href="#further-validation-of-kcnk1"
+      id="toc-further-validation-of-kcnk1">Further validation of
+      KCNK1</a></li>
+      <li><a href="#single-gene-analysis-of-kcnk1"
+      id="toc-single-gene-analysis-of-kcnk1">Single gene analysis of
+      KCNK1</a></li>
+      </ul>
+    </div>
+    <div id="postamble" data-toggle="wy-nav-shift" class="status">
+                  <p class="author"><span class="glyphicon glyphicon-user"></span> Tao
+Wu</p>
+                        <p class="date"><span class="glyphicon glyphicon-calendar"></span> 2025-11-28</p>
+          </div>
+   </div>
+     
+
+   
+      
+   
+<!-- Don't indent these lines or it will mess pre blocks indentation --> 
+<div id="main">
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(foreach)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
+<div id="differences-in-different-stages-of-breast-cancer-development"
+class="section level3">
+<h3>Differences in different stages of breast cancer development</h3>
+<p>We first used the pre-trained transcriptome model BulkFormer (<a
+href="https://github.com/KangBoming/BulkFormer"
+class="uri">https://github.com/KangBoming/BulkFormer</a>) to obtain the
+embedding for each sample, and then used tsne to perform dimensionality
+reduction and visualization of the samples.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(Rtsne)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/exp_counts.rds&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">rownames</span>(counts) <span class="ot">&lt;-</span> counts<span class="sc">$</span>Gene_ID</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>counts<span class="sc">$</span>Gene_ID <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">t</span>(counts) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># write.csv(counts,&quot;data/brca_bulkformer_input.csv&quot;,quote = F)</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>emb <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;~/Breast_cancer_dev/data/bulk_former_res.csv&quot;</span>,<span class="at">data.table =</span> F,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                         <span class="at">header =</span> T)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>emb<span class="sc">$</span>V1 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">rownames</span>(emb) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(counts)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">colnames</span>(emb) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;Emb_&quot;</span>,<span class="fu">colnames</span>(emb))</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20251128</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>tsne_results <span class="ot">&lt;-</span> <span class="fu">Rtsne</span>(emb, <span class="at">dims =</span> <span class="dv">2</span>, </span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>                      <span class="at">perplexity =</span> <span class="dv">30</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>, <span class="at">max_iter =</span> <span class="dv">5000</span>, <span class="at">eta =</span> <span class="dv">100</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>                      <span class="at">theta =</span> <span class="dv">0</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>tsne_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">X =</span> tsne_results<span class="sc">$</span>Y[, <span class="dv">1</span>],</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="at">Y =</span> tsne_results<span class="sc">$</span>Y[, <span class="dv">2</span>],</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">sample =</span> <span class="fu">rownames</span>(emb)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">substr</span>(sample,<span class="dv">1</span>,<span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type2 =</span> <span class="fu">case_when</span>(</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>    type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;A&#39;</span>,<span class="st">&#39;B&#39;</span>) <span class="sc">~</span> <span class="st">&quot;I (A,B)&quot;</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>    type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;C&quot;</span>) <span class="sc">~</span> <span class="st">&quot;II (C)&quot;</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>    type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>) <span class="sc">~</span> <span class="st">&quot;III (D,E)&quot;</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;IV (F)&quot;</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type3 =</span> <span class="fu">case_when</span>(</span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>    (type2 <span class="sc">==</span> <span class="st">&quot;IV (F)&quot;</span>) <span class="sc">&amp;</span> (<span class="sc">!</span>(sample <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;F5&quot;</span>,<span class="st">&quot;F18&quot;</span>,<span class="st">&quot;F12&quot;</span>,<span class="st">&quot;F19&quot;</span>))) <span class="sc">~</span> <span class="st">&quot;IV (F)&quot;</span>,</span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>    type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&#39;A&#39;</span>,<span class="st">&#39;B&#39;</span>) <span class="sc">~</span> <span class="st">&quot;I (A,B)&quot;</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>    type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;C&quot;</span>) <span class="sc">~</span> <span class="st">&quot;II (C)&quot;</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>    type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>) <span class="sc">~</span> <span class="st">&quot;III (D,E)&quot;</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;others&quot;</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>  ))</span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>colors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;#A64036&quot;</span>,<span class="st">&quot;#F0C2A2&quot;</span>,<span class="st">&quot;#4182A4&quot;</span>,<span class="st">&quot;#594C57&quot;</span>,<span class="st">&quot;#DB9C5E&quot;</span>,<span class="st">&quot;#E2A2AC&quot;</span>)</span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="fu">ggplot</span>(tsne_df, <span class="fu">aes</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y, <span class="at">color =</span> <span class="fu">factor</span>(type2))) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>)<span class="sc">+</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  <span class="fu">stat_ellipse</span>(</span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>    <span class="at">data =</span> <span class="fu">subset</span>(tsne_df, (type3 <span class="sc">!=</span> <span class="st">&quot;others&quot;</span>) <span class="sc">&amp;</span> (type3 <span class="sc">!=</span> <span class="st">&quot;II (C)&quot;</span>)),  <span class="co"># 只选择特定点</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y, <span class="at">color =</span> <span class="fu">factor</span>(type3))</span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>  )<span class="sc">+</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-1-1.png" width="2400" /></p>
+<p>We then calculated the differentially expressed genes between the
+pairwise groups:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>tpm <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/exp_tpm.rds&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>get_diff <span class="ot">&lt;-</span> <span class="cf">function</span>(gene, df, control_group, <span class="at">permute=</span><span class="cn">FALSE</span>){</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  tmp_dt <span class="ot">&lt;-</span> df[gene,] <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>(<span class="at">check.names =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  tmp_dt<span class="sc">$</span>sample <span class="ot">&lt;-</span> <span class="fu">rownames</span>(tmp_dt)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  tmp_dt <span class="ot">&lt;-</span> tmp_dt <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">ifelse</span>(<span class="fu">substr</span>(sample,<span class="dv">1</span>,<span class="dv">1</span>) <span class="sc">==</span> control_group,<span class="st">&quot;con&quot;</span>,<span class="st">&quot;treat&quot;</span>))</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="cf">if</span> (permute){</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    tmp_dt<span class="sc">$</span>type <span class="ot">&lt;-</span> <span class="fu">sample</span>(tmp_dt<span class="sc">$</span>type, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  }</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  tmp_test <span class="ot">&lt;-</span> <span class="fu">wilcox.test</span>(exp <span class="sc">~</span> type, <span class="at">data =</span> tmp_dt)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  tmp_res <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>    <span class="at">diff =</span> <span class="fu">median</span>(tmp_dt<span class="sc">$</span>exp[tmp_dt<span class="sc">$</span>type <span class="sc">==</span> <span class="st">&quot;treat&quot;</span>]) <span class="sc">-</span> <span class="fu">median</span>(tmp_dt<span class="sc">$</span>exp[tmp_dt<span class="sc">$</span>type <span class="sc">==</span> <span class="st">&quot;con&quot;</span>]),</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>    <span class="at">fc =</span> <span class="fu">median</span>(tmp_dt<span class="sc">$</span>exp[tmp_dt<span class="sc">$</span>type <span class="sc">==</span> <span class="st">&quot;treat&quot;</span>]) <span class="sc">/</span> (<span class="fu">median</span>(tmp_dt<span class="sc">$</span>exp[tmp_dt<span class="sc">$</span>type <span class="sc">==</span> <span class="st">&quot;con&quot;</span>]) <span class="sc">+</span> <span class="fl">0.01</span>),</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>    <span class="at">p_value =</span> tmp_test<span class="sc">$</span>p.value,</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>    <span class="at">gene =</span> tmp_gene</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>  )</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  <span class="cf">if</span> (permute){</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>    tmp_res <span class="ot">&lt;-</span> tmp_test<span class="sc">$</span>p.value</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  }</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>  <span class="fu">return</span>(tmp_res)</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>}</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>get_diff_bulk <span class="ot">&lt;-</span> <span class="cf">function</span>(group, df, n_cores){</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>  <span class="do">##group: like A-B, control in first</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>  <span class="do">##df: expression in TPM</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>  groups <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(group,<span class="st">&quot;-&quot;</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  dt <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> </span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">starts_with</span>(groups[<span class="dv">1</span>]) <span class="sc">|</span> <span class="fu">starts_with</span>(groups[<span class="dv">2</span>]))</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>  all_genes <span class="ot">&lt;-</span> <span class="fu">rownames</span>(dt)</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>  <span class="co">#create the cluster</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  my.cluster <span class="ot">&lt;-</span> parallel<span class="sc">::</span><span class="fu">makeCluster</span>(</span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>    n_cores, </span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;PSOCK&quot;</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>  )</span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>  <span class="co">#register it to be used by %dopar%</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>  doParallel<span class="sc">::</span><span class="fu">registerDoParallel</span>(<span class="at">cl =</span> my.cluster)</span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>  </span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">foreach</span>(</span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>    <span class="at">i =</span> all_genes,</span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>    <span class="at">.export =</span> <span class="fu">c</span>(<span class="st">&quot;get_diff&quot;</span>,<span class="st">&quot;dt&quot;</span>,<span class="st">&quot;groups&quot;</span>),</span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>    <span class="at">.packages =</span> <span class="st">&quot;dplyr&quot;</span></span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a>  ) <span class="sc">%dopar%</span> {</span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a>    tmp_gene <span class="ot">&lt;-</span> i</span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a>    <span class="do">##</span></span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a>    tmp_res <span class="ot">&lt;-</span> <span class="fu">get_diff</span>(<span class="at">gene =</span> tmp_gene, <span class="at">df =</span> dt, <span class="at">control_group =</span> groups[<span class="dv">1</span>])</span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a>    <span class="do">##permutate</span></span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a>    per_tmp_res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>,</span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a>                          <span class="cf">function</span>(x){</span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a>                            <span class="fu">get_diff</span>(<span class="at">gene =</span> tmp_gene, <span class="at">df =</span> dt, </span>
+<span id="cb3-51"><a href="#cb3-51" tabindex="-1"></a>                                     <span class="at">control_group =</span> groups[<span class="dv">1</span>], <span class="at">permute =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-52"><a href="#cb3-52" tabindex="-1"></a>                          })</span>
+<span id="cb3-53"><a href="#cb3-53" tabindex="-1"></a>    per_tmp_res_adj_p <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(per_tmp_res,<span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb3-54"><a href="#cb3-54" tabindex="-1"></a>    tmp_res<span class="sc">$</span>per_sig_frac <span class="ot">&lt;-</span> <span class="fu">mean</span>(per_tmp_res_adj_p <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb3-55"><a href="#cb3-55" tabindex="-1"></a>    <span class="fu">return</span>(tmp_res)</span>
+<span id="cb3-56"><a href="#cb3-56" tabindex="-1"></a>  }</span>
+<span id="cb3-57"><a href="#cb3-57" tabindex="-1"></a>  parallel<span class="sc">::</span><span class="fu">stopCluster</span>(<span class="at">cl =</span> my.cluster)</span>
+<span id="cb3-58"><a href="#cb3-58" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(res)</span>
+<span id="cb3-59"><a href="#cb3-59" tabindex="-1"></a>  res<span class="sc">$</span>p_adj <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(res<span class="sc">$</span>p_value,<span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" tabindex="-1"></a>  res<span class="sc">$</span>groups <span class="ot">&lt;-</span> group</span>
+<span id="cb3-61"><a href="#cb3-61" tabindex="-1"></a>  <span class="fu">return</span>(res)</span>
+<span id="cb3-62"><a href="#cb3-62" tabindex="-1"></a>}</span>
+<span id="cb3-63"><a href="#cb3-63" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>,<span class="st">&quot;F&quot;</span>), </span>
+<span id="cb3-65"><a href="#cb3-65" tabindex="-1"></a>                      <span class="dv">2</span>, <span class="at">FUN =</span> <span class="cf">function</span>(x) <span class="fu">paste</span>(x, <span class="at">collapse =</span> <span class="st">&quot;-&quot;</span>)) </span>
+<span id="cb3-66"><a href="#cb3-66" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" tabindex="-1"></a>all_res <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>,<span class="at">length =</span> <span class="fu">length</span>(combinations))</span>
+<span id="cb3-68"><a href="#cb3-68" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(combinations)){</span>
+<span id="cb3-69"><a href="#cb3-69" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">get_diff_bulk</span>(<span class="at">group =</span> combinations[i], <span class="at">df =</span> tpm, <span class="at">n_cores =</span> <span class="dv">100</span>)</span>
+<span id="cb3-70"><a href="#cb3-70" tabindex="-1"></a>  all_res[[i]] <span class="ot">&lt;-</span> tmp</span>
+<span id="cb3-71"><a href="#cb3-71" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">&quot;Complete &quot;</span>,combinations[i])</span>
+<span id="cb3-72"><a href="#cb3-72" tabindex="-1"></a>}</span>
+<span id="cb3-73"><a href="#cb3-73" tabindex="-1"></a>all_res <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(all_res)</span>
+<span id="cb3-74"><a href="#cb3-74" tabindex="-1"></a><span class="fu">saveRDS</span>(all_res,<span class="st">&quot;data/diff_all_exp.rds&quot;</span>)</span></code></pre></div>
+<p>Based on differentially expressed genes, we created gene expression
+heatmap:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:Rtsne&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>tpm <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/exp_tpm.rds&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>diff_all_exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/diff_all_exp.rds&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>sig_diff <span class="ot">&lt;-</span> diff_all_exp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> per_sig_frac <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2fc =</span> <span class="fu">log2</span>(fc <span class="sc">+</span> <span class="fl">0.01</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>sig_top <span class="ot">&lt;-</span> sig_diff <span class="sc">%&gt;%</span> </span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="fu">group_by</span>(groups) <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> fc, <span class="at">n=</span><span class="dv">100</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>dt <span class="ot">&lt;-</span> tpm[<span class="fu">unique</span>(sig_top<span class="sc">$</span>gene),] <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">log2</span>(dt<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>dt_z <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">scale</span>(<span class="fu">t</span>(dt)))</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="fu">library</span>(ComplexHeatmap)</span></code></pre></div>
+<pre><code>#&gt; Loading required package: grid</code></pre>
+<pre><code>#&gt; ========================================
+#&gt; ComplexHeatmap version 2.20.0
+#&gt; Bioconductor page: http://bioconductor.org/packages/ComplexHeatmap/
+#&gt; Github page: https://github.com/jokergoo/ComplexHeatmap
+#&gt; Documentation: http://jokergoo.github.io/ComplexHeatmap-reference
+#&gt; 
+#&gt; If you use it in published research, please cite either one:
+#&gt; - Gu, Z. Complex Heatmap Visualization. iMeta 2022.
+#&gt; - Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional 
+#&gt;     genomic data. Bioinformatics 2016.
+#&gt; 
+#&gt; 
+#&gt; The new InteractiveComplexHeatmap package can directly export static 
+#&gt; complex heatmaps into an interactive Shiny app with zero effort. Have a try!
+#&gt; 
+#&gt; This message can be suppressed by:
+#&gt;   suppressPackageStartupMessages(library(ComplexHeatmap))
+#&gt; ========================================</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># 创建样本分组信息</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>sample_groups <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">substr</span>(<span class="fu">colnames</span>(dt_z),<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">names</span>(sample_groups) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(dt_z)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>ha <span class="ot">&lt;-</span> <span class="fu">HeatmapAnnotation</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">Group =</span> sample_groups,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">list</span>(<span class="at">Group =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span> <span class="ot">=</span> <span class="st">&quot;#333C42&quot;</span>, <span class="st">&quot;B&quot;</span> <span class="ot">=</span> <span class="st">&quot;#316658&quot;</span>, <span class="st">&quot;C&quot;</span> <span class="ot">=</span> <span class="st">&quot;#5EA69C&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                       <span class="st">&quot;D&quot;</span> <span class="ot">=</span> <span class="st">&quot;#C2CFA2&quot;</span>, <span class="st">&quot;E&quot;</span> <span class="ot">=</span> <span class="st">&quot;#A4799E&quot;</span>, <span class="st">&quot;F&quot;</span> <span class="ot">=</span> <span class="st">&quot;#706690&quot;</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20251121</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">Heatmap</span>(dt_z, <span class="at">show_row_names =</span> F, <span class="at">show_row_dend =</span> F, <span class="at">top_annotation =</span> ha,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>        <span class="at">column_km =</span> <span class="dv">3</span>, <span class="at">name =</span> <span class="st">&quot;Scaled TPM&quot;</span>, <span class="at">cluster_column_slices =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<pre><code>#&gt; The automatically generated colors map from the minus and plus 99^th of
+#&gt; the absolute values in the matrix. There are outliers in the matrix
+#&gt; whose patterns might be hidden by this color mapping. You can manually
+#&gt; set the color to `col` argument.
+#&gt; 
+#&gt; Use `suppressMessages()` to turn off this message.</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-3-1.png" width="2400" /></p>
+<p>and volcano plots of differentially expressed genes for different
+groups:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:ComplexHeatmap&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>diff_all_exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/diff_all_exp.rds&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>all_res <span class="ot">&lt;-</span> diff_all_exp <span class="sc">%&gt;%</span> </span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.nan</span>(p_value)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2fc =</span> <span class="fu">log2</span>(fc <span class="sc">+</span> <span class="fl">0.01</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>sig_diff <span class="ot">&lt;-</span> all_res <span class="sc">%&gt;%</span> <span class="fu">filter</span>((p_value <span class="sc">&lt;</span> <span class="fl">0.05</span>) <span class="sc">&amp;</span> (per_sig_frac <span class="sc">==</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">change =</span> <span class="fu">as.factor</span>(<span class="fu">ifelse</span>(fc <span class="sc">&gt;</span> <span class="dv">1</span>,<span class="st">&quot;up&quot;</span>,<span class="st">&quot;down&quot;</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">ifelse</span>(p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span>,<span class="st">&quot;adjust P-val&lt;0.05&quot;</span>,<span class="st">&quot;adjust P-val &gt;= 0.05&quot;</span>))</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>TopGene <span class="ot">&lt;-</span> </span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>  sig_diff <span class="sc">%&gt;%</span> </span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>  <span class="fu">group_by</span>(groups) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>  <span class="fu">distinct</span>(gene, <span class="at">.keep_all =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>  <span class="fu">top_n</span>(<span class="dv">10</span>, log2fc)</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>label_gene <span class="ot">&lt;-</span> TopGene <span class="sc">%&gt;%</span> <span class="fu">filter</span>(p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>dbar <span class="ot">&lt;-</span> </span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  sig_diff <span class="sc">%&gt;%</span> </span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="fu">group_by</span>(groups) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">logfc_min =</span> <span class="fu">min</span>(log2fc), <span class="at">logfc_max =</span> <span class="fu">max</span>(log2fc), <span class="at">diff_gene =</span> <span class="fu">sum</span>(p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="st">&quot;adjust P-val &gt;= 0.05&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>()</span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co"># 直接出图</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">data =</span> dbar,  <span class="co"># 绘制负向背景柱状图</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>           <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> groups,<span class="at">y =</span> logfc_min),</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a>           <span class="at">fill =</span> <span class="st">&quot;#dcdcdc&quot;</span>,<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">width =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">data =</span> dbar, <span class="co"># 绘制正向背景柱状图</span></span>
+<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a>           <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> groups,<span class="at">y =</span> logfc_max),</span>
+<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a>           <span class="at">fill =</span> <span class="st">&quot;#dcdcdc&quot;</span>,<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">width =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data =</span> sig_diff, <span class="co"># 绘制所有数据点</span></span>
+<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">x =</span> groups, <span class="at">y =</span> log2fc, <span class="at">color =</span> label),</span>
+<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a>              <span class="at">size =</span> <span class="fl">0.85</span>,</span>
+<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a>              <span class="at">width =</span><span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">data =</span> TopGene, <span class="co"># 绘制top10数据点</span></span>
+<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">x =</span> groups, <span class="at">y =</span> log2fc, <span class="at">color =</span> label),</span>
+<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a>              <span class="at">size =</span> <span class="dv">1</span>,</span>
+<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a>              <span class="at">width =</span><span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">data =</span> TopGene, <span class="co"># 绘制中心分组标记图</span></span>
+<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> groups,</span>
+<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a>                <span class="at">y =</span> <span class="dv">0</span>,</span>
+<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a>                <span class="at">fill =</span> groups),</span>
+<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a>            <span class="at">height=</span><span class="fl">1.5</span>,</span>
+<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a>            <span class="at">alpha =</span> <span class="fl">0.6</span>,</span>
+<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a>            <span class="at">show.legend =</span> F) <span class="sc">+</span></span>
+<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a>  ggsci<span class="sc">::</span><span class="fu">scale_fill_d3</span>(<span class="at">palette =</span> <span class="st">&quot;category20&quot;</span>) <span class="sc">+</span> <span class="co"># 自定义颜色</span></span>
+<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a>  ggsci<span class="sc">::</span><span class="fu">scale_color_d3</span>(<span class="at">palette =</span> <span class="st">&quot;category20&quot;</span>) <span class="sc">+</span> <span class="co"># 自定义颜色</span></span>
+<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a>  <span class="fu">geom_text_repel</span>(<span class="at">data =</span> label_gene,  <span class="co"># 这里的filter很关键，筛选你想要标记的基因</span></span>
+<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a>                  <span class="fu">aes</span>(<span class="at">x =</span> groups, <span class="at">y =</span> log2fc, <span class="at">label =</span> gene),</span>
+<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a>                  <span class="at">size =</span> <span class="dv">2</span>, </span>
+<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a>                  <span class="at">max.overlaps =</span> <span class="fu">getOption</span>(<span class="st">&quot;ggrepel.max.overlaps&quot;</span>, <span class="at">default =</span> <span class="dv">30</span>),</span>
+<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a>                  <span class="at">color =</span> <span class="st">&#39;black&#39;</span>,</span>
+<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a>                  <span class="at">force =</span> <span class="fl">1.2</span>,</span>
+<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a>                  <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.008</span>, <span class="st">&quot;npc&quot;</span>),</span>
+<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a>                                <span class="at">type =</span> <span class="st">&quot;open&quot;</span>, <span class="at">ends =</span> <span class="st">&quot;last&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">&quot;Groups&quot;</span>, <span class="at">y=</span><span class="st">&quot;logFC&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data=</span>TopGene, <span class="co"># 绘制中心分组标记图文本注释</span></span>
+<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x=</span>groups, </span>
+<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a>                <span class="at">y=</span><span class="dv">0</span>, </span>
+<span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a>                <span class="at">label=</span>groups),</span>
+<span id="cb9-64"><a href="#cb9-64" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">3</span>,</span>
+<span id="cb9-65"><a href="#cb9-65" tabindex="-1"></a>            <span class="at">color =</span><span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-66"><a href="#cb9-66" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb9-67"><a href="#cb9-67" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>,<span class="at">color =</span> <span class="st">&quot;black&quot;</span>,<span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb9-68"><a href="#cb9-68" tabindex="-1"></a>        <span class="at">axis.line.y =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">&quot;black&quot;</span>,<span class="at">size =</span> <span class="fl">1.2</span>),</span>
+<span id="cb9-69"><a href="#cb9-69" tabindex="-1"></a>        <span class="at">axis.line.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb9-70"><a href="#cb9-70" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb9-71"><a href="#cb9-71" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb9-72"><a href="#cb9-72" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">&quot;top&quot;</span>,</span>
+<span id="cb9-73"><a href="#cb9-73" tabindex="-1"></a>        <span class="at">legend.direction =</span> <span class="st">&quot;vertical&quot;</span>,</span>
+<span id="cb9-74"><a href="#cb9-74" tabindex="-1"></a>        <span class="at">legend.justification =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>),</span>
+<span id="cb9-75"><a href="#cb9-75" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>))<span class="sc">+</span></span>
+<span id="cb9-76"><a href="#cb9-76" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="at">x =</span> dbar<span class="sc">$</span>groups, <span class="at">y =</span> <span class="sc">-</span><span class="dv">7</span>, </span>
+<span id="cb9-77"><a href="#cb9-77" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">&quot;N=&quot;</span>, dbar<span class="sc">$</span>diff_gene))</span></code></pre></div>
+<pre><code>#&gt; Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
+#&gt; ℹ Please use the `linewidth` argument instead.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-4-1.png" width="2400" /></p>
+<p>We used GSVA to calculate the enrichment levels (NES) of 50 Hallmark
+pathways in different samples, and then calculated the enrichment
+differences of different pathways between each group.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">library</span>(GSVA)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>tpm <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/exp_tpm.rds&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>tpm <span class="ot">&lt;-</span> <span class="fu">log2</span>(<span class="fu">as.matrix</span>(tpm) <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>pat <span class="ot">&lt;-</span> fgsea<span class="sc">::</span><span class="fu">gmtPathways</span>(<span class="st">&quot;~/melanoma/data/h.all.v2024.1.Hs.symbols.gmt&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>gsvaPar <span class="ot">&lt;-</span> <span class="fu">gsvaParam</span>(tpm, pat)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>gsva.es <span class="ot">&lt;-</span> <span class="fu">gsva</span>(gsvaPar, <span class="at">verbose=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="fu">saveRDS</span>(gsva.es,<span class="st">&quot;data/gsva_res.rds&quot;</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="do">###</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>gsea_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/gsva_res.rds&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>,<span class="st">&quot;F&quot;</span>), </span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>                      <span class="dv">2</span>, <span class="at">FUN =</span> <span class="cf">function</span>(x) <span class="fu">paste</span>(x, <span class="at">collapse =</span> <span class="st">&quot;-&quot;</span>)) </span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>all_res <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>,<span class="at">length =</span> <span class="fu">length</span>(combinations))</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(combinations)){</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>  tmp <span class="ot">&lt;-</span> <span class="fu">get_diff_bulk</span>(<span class="at">group =</span> combinations[i], <span class="at">df =</span> gsea_res, <span class="at">n_cores =</span> <span class="dv">50</span>)</span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  all_res[[i]] <span class="ot">&lt;-</span> tmp</span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">&quot;Complete &quot;</span>,combinations[i])</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>}</span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>all_res <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(all_res)</span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a><span class="fu">saveRDS</span>(all_res,<span class="st">&quot;data/diff_gsva.rds&quot;</span>)</span></code></pre></div>
+<p>Then, we plot the heatmap to show the differences:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>all_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/diff_gsva.rds&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>dt_v <span class="ot">&lt;-</span> all_res <span class="sc">%&gt;%</span> </span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">select</span>(groups, gene, diff) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">names_from =</span> groups, <span class="at">values_from =</span> diff) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fu">rownames</span>(dt_v) <span class="ot">&lt;-</span> dt_v<span class="sc">$</span>gene</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>dt_v<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>dt_p <span class="ot">&lt;-</span> all_res <span class="sc">%&gt;%</span> </span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  <span class="fu">select</span>(groups, gene, p_adj) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(<span class="at">names_from =</span> groups, <span class="at">values_from =</span> p_adj) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">rownames</span>(dt_p) <span class="ot">&lt;-</span> dt_p<span class="sc">$</span>gene</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>dt_p<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a>dt_v <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(dt_v)</span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a>dt_p <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(dt_p)</span>
+<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a>dt_v <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dt_p <span class="sc">&lt;</span> <span class="fl">0.05</span>, dt_v, <span class="cn">NA</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="fu">library</span>(ComplexHeatmap)</span></code></pre></div>
+<pre><code>#&gt; ========================================
+#&gt; ComplexHeatmap version 2.20.0
+#&gt; Bioconductor page: http://bioconductor.org/packages/ComplexHeatmap/
+#&gt; Github page: https://github.com/jokergoo/ComplexHeatmap
+#&gt; Documentation: http://jokergoo.github.io/ComplexHeatmap-reference
+#&gt; 
+#&gt; If you use it in published research, please cite either one:
+#&gt; - Gu, Z. Complex Heatmap Visualization. iMeta 2022.
+#&gt; - Gu, Z. Complex heatmaps reveal patterns and correlations in multidimensional 
+#&gt;     genomic data. Bioinformatics 2016.
+#&gt; 
+#&gt; 
+#&gt; The new InteractiveComplexHeatmap package can directly export static 
+#&gt; complex heatmaps into an interactive Shiny app with zero effort. Have a try!
+#&gt; 
+#&gt; This message can be suppressed by:
+#&gt;   suppressPackageStartupMessages(library(ComplexHeatmap))
+#&gt; ========================================</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">rownames</span>(dt_v) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;HALLMARK_&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="fu">rownames</span>(dt_v))</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">Heatmap</span>(dt_v,<span class="at">cluster_rows =</span> F,<span class="at">cluster_columns =</span> F, <span class="at">row_names_side =</span> <span class="st">&quot;left&quot;</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>        <span class="at">na_col =</span> <span class="st">&quot;white&quot;</span>, <span class="at">border=</span>T, <span class="at">rect_gp =</span> <span class="fu">gpar</span>(<span class="at">col =</span> <span class="st">&quot;white&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>),</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>        <span class="at">name =</span> <span class="st">&quot;ES Difference&quot;</span>, <span class="at">row_names_max_width =</span> <span class="fu">max_text_width</span>(</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>          <span class="fu">rownames</span>(dt_v), </span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>          <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">12</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>        ))</span></code></pre></div>
+<p>Finally, we used eight immune cell deconvolution tools to quantify
+the proportions of various immune cells from the transcriptome data
+(code can be found in <code>scripts</code> folder). Here, we show the
+results of CIBERSORT:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:ComplexHeatmap&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>all_immune <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/all_immune_8.rds&quot;</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>dt <span class="ot">&lt;-</span> all_immune <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">&quot;cibersort_abs&quot;</span>,cell_type))</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="fu">rownames</span>(dt) <span class="ot">&lt;-</span> dt<span class="sc">$</span>cell_type</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>dt<span class="sc">$</span>cell_type <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">t</span>(dt) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>dt<span class="sc">$</span>sample <span class="ot">&lt;-</span> <span class="fu">rownames</span>(dt)</span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="fu">colnames</span>(dt) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;cibersort_abs~&quot;</span>,<span class="st">&quot;&quot;</span>,<span class="fu">colnames</span>(dt))</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">B cells</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">B cells naive</span><span class="st">`</span> <span class="sc">+</span> <span class="st">`</span><span class="at">B cells memory</span><span class="st">`</span>,</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>         <span class="st">`</span><span class="at">T cells CD4</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">T cells CD4 naive</span><span class="st">`</span> <span class="sc">+</span> <span class="st">`</span><span class="at">T cells CD4 memory resting</span><span class="st">`</span> <span class="sc">+</span> <span class="st">`</span><span class="at">T cells CD4 memory activated</span><span class="st">`</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>         <span class="st">`</span><span class="at">NK cells</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">NK cells resting</span><span class="st">`</span> <span class="sc">+</span> <span class="st">`</span><span class="at">NK cells activated</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">B cells</span><span class="st">`</span>, <span class="st">`</span><span class="at">T cells CD4</span><span class="st">`</span>, <span class="st">`</span><span class="at">T cells CD8</span><span class="st">`</span>, <span class="st">`</span><span class="at">NK cells</span><span class="st">`</span>, <span class="st">`</span><span class="at">Macrophages M1</span><span class="st">`</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>         <span class="st">`</span><span class="at">Macrophages M2</span><span class="st">`</span>, sample)</span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">groups =</span> <span class="fu">substr</span>(sample,<span class="dv">1</span>,<span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>  <span class="fu">select</span>(sample, groups, <span class="fu">everything</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">3</span><span class="sc">:</span><span class="fu">ncol</span>(.), </span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a>                      <span class="at">names_to =</span> <span class="st">&quot;cell_type&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;Score&quot;</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a><span class="fu">ggboxplot</span>(dt,<span class="at">x=</span><span class="st">&quot;cell_type&quot;</span>,<span class="at">y=</span><span class="st">&quot;Score&quot;</span>,<span class="at">fill =</span> <span class="st">&quot;groups&quot;</span>,<span class="at">xlab =</span> <span class="st">&quot;Cell Type&quot;</span>)<span class="sc">+</span></span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>  <span class="fu">rotate_x_text</span>()</span></code></pre></div>
+<pre><code>#&gt; Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+#&gt; ℹ Please use the `linewidth` argument instead.
+#&gt; ℹ The deprecated feature was likely used in the ggpubr package.
+#&gt;   Please report the issue at &lt;https://github.com/kassambara/ggpubr/issues&gt;.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-7-1.png" width="2400" /></p>
+</div>
+<div
+id="identify-genes-important-for-the-development-and-progression-of-breast-cancer"
+class="section level3">
+<h3>Identify genes important for the development and progression of
+breast cancer</h3>
+<p>We first performed WGCNA analysis, using different progression stages
+of breast cancer development as phenotypic variables to identify gene
+modules associated with cancer progression. Secondly, we conducted
+temporal differential gene analysis to identify genes whose expression
+levels gradually increased as breast cancer progressed. These two
+results were combined to form candidate genes for the first stage. Next,
+we used three machine learning methods, including lasso regression,
+random forest, and Boruta, to model the expression of these genes and
+patient prognosis on the TCGA dataset. By analyzing the importance of
+model variables, we can identify genes that are more important for
+predicting prognosis. Finally, seven genes were selected for further
+validation.</p>
+<div class="float">
+<img src="workflow.png"
+alt="workflow" />
+<div class="figcaption">workflow</div>
+</div>
+<p>First, perform WGCNA analysis:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="do">##########WGCNA</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">library</span>(BioNERO)</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20250412</span>) </span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>exp_tpm <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/exp_tpm.rds&quot;</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>sample_metadata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">sample =</span> <span class="fu">colnames</span>(exp_tpm)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">substr</span>(sample,<span class="dv">1</span>,<span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>    .,</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>      <span class="at">type =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>,<span class="st">&quot;F&quot;</span>),</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>      <span class="at">type_num =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a>    )</span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>type)</span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a><span class="fu">rownames</span>(sample_metadata) <span class="ot">&lt;-</span> sample_metadata<span class="sc">$</span>sample</span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a>sample_metadata<span class="sc">$</span>sample <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb17-17"><a href="#cb17-17" tabindex="-1"></a>se <span class="ot">&lt;-</span> SummarizedExperiment<span class="sc">::</span><span class="fu">SummarizedExperiment</span>(<span class="at">assays =</span> <span class="fu">list</span>(<span class="at">tpm =</span> <span class="fu">as.matrix</span>(exp_tpm)),</span>
+<span id="cb17-18"><a href="#cb17-18" tabindex="-1"></a>                                                 <span class="at">colData =</span> sample_metadata)</span>
+<span id="cb17-19"><a href="#cb17-19" tabindex="-1"></a>exp_filt <span class="ot">&lt;-</span> <span class="fu">remove_nonexp</span>(se, <span class="at">method =</span> <span class="st">&quot;median&quot;</span>, <span class="at">min_exp =</span> <span class="dv">2</span>)</span>
+<span id="cb17-20"><a href="#cb17-20" tabindex="-1"></a><span class="fu">dim</span>(exp_filt)</span>
+<span id="cb17-21"><a href="#cb17-21" tabindex="-1"></a>exp_filt <span class="ot">&lt;-</span> <span class="fu">filter_by_variance</span>(exp_filt, <span class="at">n =</span> <span class="dv">5000</span>)</span>
+<span id="cb17-22"><a href="#cb17-22" tabindex="-1"></a>exp_filt <span class="ot">&lt;-</span> <span class="fu">ZKfiltering</span>(exp_filt, <span class="at">cor_method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb17-23"><a href="#cb17-23" tabindex="-1"></a>exp_filt <span class="ot">&lt;-</span> <span class="fu">PC_correction</span>(exp_filt)</span>
+<span id="cb17-24"><a href="#cb17-24" tabindex="-1"></a></span>
+<span id="cb17-25"><a href="#cb17-25" tabindex="-1"></a>WGCNA<span class="sc">::</span><span class="fu">enableWGCNAThreads</span>(<span class="at">nThreads =</span> <span class="dv">40</span>)</span>
+<span id="cb17-26"><a href="#cb17-26" tabindex="-1"></a>sft <span class="ot">&lt;-</span> <span class="fu">SFT_fit</span>(exp_filt, <span class="at">net_type =</span> <span class="st">&quot;signed hybrid&quot;</span>, <span class="at">cor_method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb17-27"><a href="#cb17-27" tabindex="-1"></a>sft<span class="sc">$</span>plot</span>
+<span id="cb17-28"><a href="#cb17-28" tabindex="-1"></a></span>
+<span id="cb17-29"><a href="#cb17-29" tabindex="-1"></a>power <span class="ot">&lt;-</span> sft<span class="sc">$</span>power</span>
+<span id="cb17-30"><a href="#cb17-30" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">exp2gcn</span>(exp_filt, <span class="at">net_type =</span> <span class="st">&quot;signed hybrid&quot;</span>, <span class="at">SFTpower =</span> power, </span>
+<span id="cb17-31"><a href="#cb17-31" tabindex="-1"></a>               <span class="at">cor_method =</span> <span class="st">&quot;spearman&quot;</span>)</span>
+<span id="cb17-32"><a href="#cb17-32" tabindex="-1"></a><span class="do">###筛选显著相关性的模块</span></span>
+<span id="cb17-33"><a href="#cb17-33" tabindex="-1"></a>MEtrait <span class="ot">&lt;-</span> <span class="fu">module_trait_cor</span>(<span class="at">exp =</span> exp_filt, <span class="at">MEs =</span> net<span class="sc">$</span>MEs)</span>
+<span id="cb17-34"><a href="#cb17-34" tabindex="-1"></a></span>
+<span id="cb17-35"><a href="#cb17-35" tabindex="-1"></a><span class="fu">saveRDS</span>(MEtrait,<span class="st">&quot;data/MEtrait_conF.rds&quot;</span>)</span>
+<span id="cb17-36"><a href="#cb17-36" tabindex="-1"></a><span class="fu">saveRDS</span>(net,<span class="at">file =</span> <span class="st">&quot;data/WGCNA_res_conF.rds&quot;</span>)</span>
+<span id="cb17-37"><a href="#cb17-37" tabindex="-1"></a><span class="fu">saveRDS</span>(exp_filt, <span class="at">file =</span> <span class="st">&quot;data/WGCNA_exp_conF.rds&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">library</span>(BioNERO)</span></code></pre></div>
+<pre><code>#&gt; </code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/WGCNA_res_conF.rds&quot;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>MEtrait <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/MEtrait_conF.rds&quot;</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="fu">plot_dendro_and_colors</span>(net)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-10-1.png" width="2400" /></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">plot_eigengene_network</span>(net)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-10-2.png" width="2400" /></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">plot_ngenes_per_module</span>(net)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-10-3.png" width="2400" /></p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">plot_module_trait_cor</span>(MEtrait)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-10-4.png" width="2400" /></p>
+<p>Save genes from the most relevant module.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>gene_module <span class="ot">&lt;-</span> net<span class="sc">$</span>genes_and_modules</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>dt <span class="ot">&lt;-</span> gene_module <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Modules <span class="sc">==</span> <span class="st">&quot;cyan&quot;</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="fu">saveRDS</span>(dt,<span class="at">file =</span> <span class="st">&quot;data/cyan_module_genes.rds&quot;</span>)</span></code></pre></div>
+<p>Next, we will use TrendCatcher to identify dynamic differentially
+expressed genes:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>expcounts <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/exp_counts.rds&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a><span class="fu">rownames</span>(expcounts) <span class="ot">&lt;-</span> expcounts<span class="sc">$</span>Gene_ID</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>expcounts<span class="sc">$</span>Gene_ID <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>sample_name <span class="ot">&lt;-</span> <span class="fu">colnames</span>(expcounts)</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>sample_name <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>  <span class="at">ori_sample =</span> sample_name</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">group =</span> <span class="fu">substr</span>(ori_sample,<span class="dv">1</span>,<span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a>  <span class="fu">left_join</span>(.,</span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a>            <span class="fu">data.frame</span>(</span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a>              <span class="at">group =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>,<span class="st">&quot;C&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;E&quot;</span>,<span class="st">&quot;F&quot;</span>),</span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a>              <span class="at">time =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>)</span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a>            )) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-13"><a href="#cb25-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rep =</span> <span class="fu">gsub</span>(<span class="st">&quot;[A-Z]&quot;</span>,<span class="st">&quot;&quot;</span>,ori_sample)) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-14"><a href="#cb25-14" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cu_name =</span> <span class="fu">paste0</span>(<span class="st">&quot;B&quot;</span>,<span class="st">&quot;_&quot;</span>,time,<span class="st">&quot;_&quot;</span>,<span class="st">&quot;Rep&quot;</span>,rep))</span>
+<span id="cb25-15"><a href="#cb25-15" tabindex="-1"></a><span class="fu">colnames</span>(expcounts) <span class="ot">&lt;-</span> sample_name<span class="sc">$</span>cu_name</span>
+<span id="cb25-16"><a href="#cb25-16" tabindex="-1"></a><span class="fu">write.csv</span>(expcounts,<span class="st">&quot;data/exp_counts.csv&quot;</span>)</span>
+<span id="cb25-17"><a href="#cb25-17" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" tabindex="-1"></a><span class="fu">library</span>(TrendCatcher)</span>
+<span id="cb25-19"><a href="#cb25-19" tabindex="-1"></a>master.list <span class="ot">&lt;-</span> <span class="fu">run_TrendCatcher</span>(<span class="at">count.table.path =</span> <span class="st">&quot;~/Breast_cancer_dev/data/exp_counts.csv&quot;</span>,</span>
+<span id="cb25-20"><a href="#cb25-20" tabindex="-1"></a>                                <span class="at">baseline.t =</span> <span class="dv">1</span>,</span>
+<span id="cb25-21"><a href="#cb25-21" tabindex="-1"></a>                                <span class="at">time.unit =</span> <span class="st">&quot;y&quot;</span>,</span>
+<span id="cb25-22"><a href="#cb25-22" tabindex="-1"></a>                                <span class="at">min.low.count =</span> <span class="dv">1</span>,</span>
+<span id="cb25-23"><a href="#cb25-23" tabindex="-1"></a>                                <span class="at">para.core.n =</span> <span class="dv">50</span>,</span>
+<span id="cb25-24"><a href="#cb25-24" tabindex="-1"></a>                                <span class="at">dyn.p.thres =</span> <span class="fl">0.05</span>)</span>
+<span id="cb25-25"><a href="#cb25-25" tabindex="-1"></a>ft <span class="ot">&lt;-</span> master.list<span class="sc">$</span>fitted.count</span>
+<span id="cb25-26"><a href="#cb25-26" tabindex="-1"></a>mt <span class="ot">&lt;-</span> master.list<span class="sc">$</span>master.table</span>
+<span id="cb25-27"><a href="#cb25-27" tabindex="-1"></a></span>
+<span id="cb25-28"><a href="#cb25-28" tabindex="-1"></a>mapping <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;/data/sde/wt/TCGA/gencode.v22.annotation.gene.probeMap&quot;</span>,</span>
+<span id="cb25-29"><a href="#cb25-29" tabindex="-1"></a>                             <span class="at">data.table =</span> F)</span>
+<span id="cb25-30"><a href="#cb25-30" tabindex="-1"></a>mt <span class="ot">&lt;-</span> mt <span class="sc">%&gt;%</span> </span>
+<span id="cb25-31"><a href="#cb25-31" tabindex="-1"></a>  <span class="fu">left_join</span>(.,mapping <span class="sc">%&gt;%</span> </span>
+<span id="cb25-32"><a href="#cb25-32" tabindex="-1"></a>              <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">gsub</span>(<span class="st">&quot;[.].+&quot;</span>,<span class="st">&quot;&quot;</span>,id)) <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(id,gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-33"><a href="#cb25-33" tabindex="-1"></a>              <span class="fu">rename</span>(<span class="at">Gene =</span> id))</span>
+<span id="cb25-34"><a href="#cb25-34" tabindex="-1"></a>master.list<span class="sc">$</span>master.table<span class="sc">$</span>Symbol <span class="ot">&lt;-</span> mt<span class="sc">$</span>gene </span>
+<span id="cb25-35"><a href="#cb25-35" tabindex="-1"></a><span class="fu">saveRDS</span>(master.list,<span class="at">file =</span> <span class="st">&quot;data/master_list_conF.rds&quot;</span>)</span>
+<span id="cb25-36"><a href="#cb25-36" tabindex="-1"></a></span>
+<span id="cb25-37"><a href="#cb25-37" tabindex="-1"></a>tt <span class="ot">&lt;-</span> mt <span class="sc">%&gt;%</span> <span class="fu">filter</span>(pattern_str <span class="sc">==</span> <span class="st">&quot;1y_up_6y&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb25-38"><a href="#cb25-38" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(dynSign))</span>
+<span id="cb25-39"><a href="#cb25-39" tabindex="-1"></a><span class="fu">saveRDS</span>(tt,<span class="st">&quot;data/TrendCatcher_1y_up_6.rds&quot;</span>)</span></code></pre></div>
+<p>We can plot the expression trend of genes with different expression
+patterns.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:BioNERO&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(TrendCatcher,<span class="at">quietly =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>master.list <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/master_list_conF.rds&quot;</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="fu">draw_TrajClusterGrid</span>(<span class="at">master.list =</span> master.list, <span class="at">min.traj.n =</span> <span class="dv">30</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-13-1.png" width="2400" /></p>
+<p>The union between genes of WGCNA cyan module and TrendsCatcher is 365
+genes:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:TrendCatcher&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>cyan_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/cyan_module_genes.rds&quot;</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>trends_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/TrendCatcher_1y_up_6.rds&quot;</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">union</span>(cyan_genes<span class="sc">$</span>Genes, trends_genes<span class="sc">$</span>Symbol)</span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a><span class="fu">print</span>(all_genes)</span></code></pre></div>
+<pre><code>#&gt;  [1] &quot;GPRC5A&quot;   &quot;COL11A1&quot;  &quot;FOSL2&quot;    &quot;FAP&quot;      &quot;RGS1&quot;     &quot;GADD45B&quot; 
+#&gt;  [7] &quot;MMP11&quot;    &quot;HCFC1R1&quot;  &quot;CAPS&quot;     &quot;COMP&quot;     &quot;SERPINE1&quot; &quot;ASPN&quot;    
+#&gt; [13] &quot;PSMD3&quot;    &quot;COL12A1&quot;  &quot;GRB14&quot;    &quot;FN1&quot;      &quot;SDC1&quot;     &quot;GADD45A&quot; 
+#&gt; [19] &quot;CTGF&quot;     &quot;INHBA&quot;    &quot;COL10A1&quot;  &quot;TNFAIP6&quot;  &quot;PMEPA1&quot;   &quot;CDKN1A&quot;  
+#&gt; [25] &quot;SAT1&quot;     &quot;RARA&quot;     &quot;MATN3&quot;    &quot;RAMP1&quot;    &quot;KCNK1&quot;    &quot;ALDH1B1&quot; 
+#&gt; [31] &quot;SULF1&quot;    &quot;CILP&quot;     &quot;RFWD2&quot;    &quot;COL8A1&quot;   &quot;CDKN2B&quot;   &quot;FAM49B&quot;  
+#&gt; [37] &quot;S100P&quot;    &quot;FNDC1&quot;    &quot;CTHRC1&quot;   &quot;GJB2&quot;     &quot;NNMT&quot;     &quot;GREM1&quot;   
+#&gt; [43] &quot;MS4A7&quot;    &quot;RAB31&quot;    &quot;CXCL10&quot;   &quot;CXCL11&quot;   &quot;ENC1&quot;     &quot;LRRC15&quot;  
+#&gt; [49] &quot;OLR1&quot;     &quot;CST6&quot;     &quot;MAPK15&quot;   &quot;BGN&quot;      &quot;S100A10&quot;  &quot;CPB1&quot;    
+#&gt; [55] &quot;FGB&quot;      &quot;CLEC3A&quot;   &quot;PCSK1&quot;    &quot;CNTNAP2&quot;  &quot;HIST1H3H&quot; &quot;CXCL9&quot;   
+#&gt; [61] &quot;CENPE&quot;    &quot;DIO1&quot;     &quot;CEACAM5&quot;  &quot;S100A8&quot;   &quot;S100A7&quot;   &quot;PPAPDC1A&quot;
+#&gt; [67] &quot;MUC19&quot;    &quot;VMP1&quot;     &quot;FCGR1A&quot;   &quot;ADAMDEC1&quot; &quot;UBE2C&quot;    &quot;CFAP45&quot;  
+#&gt; [73] &quot;SYT13&quot;    &quot;RAB26&quot;    &quot;NBPF6&quot;   
+#&gt;  [ reached getOption(&quot;max.print&quot;) -- omitted 290 entries ]</code></pre>
+<p>Then we performed ML modeling using TCGA samples, the processing of
+TCGA sample can be found in
+<code>scripts/tcga_sample_processed.R</code>.</p>
+<ol style="list-style-type: decimal">
+<li>Lasso</li>
+</ol>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="do">###lasso</span></span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a><span class="fu">library</span>(glmnet)</span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>sample_info <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_sampleinfo.rds&quot;</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a>exp_filter <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a></span>
+<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a>suvr_data <span class="ot">&lt;-</span> sample_info <span class="sc">%&gt;%</span> <span class="fu">select</span>(samples,OS.time,OS) <span class="sc">%&gt;%</span> </span>
+<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">status =</span> OS, <span class="at">time =</span> OS.time) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a><span class="fu">rownames</span>(suvr_data) <span class="ot">&lt;-</span> suvr_data<span class="sc">$</span>samples</span>
+<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a>suvr_data<span class="sc">$</span>samples <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a>exp_m <span class="ot">&lt;-</span> exp_filter</span>
+<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="fu">rownames</span>(exp_m) <span class="ot">&lt;-</span> exp_m<span class="sc">$</span>gene</span>
+<span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a>exp_m<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb29-15"><a href="#cb29-15" tabindex="-1"></a>exp_m <span class="ot">&lt;-</span> <span class="fu">t</span>(exp_m)</span>
+<span id="cb29-16"><a href="#cb29-16" tabindex="-1"></a></span>
+<span id="cb29-17"><a href="#cb29-17" tabindex="-1"></a>cyan_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/cyan_module_genes.rds&quot;</span>)</span>
+<span id="cb29-18"><a href="#cb29-18" tabindex="-1"></a>trends_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/TrendCatcher_1y_up_6.rds&quot;</span>)</span>
+<span id="cb29-19"><a href="#cb29-19" tabindex="-1"></a></span>
+<span id="cb29-20"><a href="#cb29-20" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">colnames</span>(exp_m),</span>
+<span id="cb29-21"><a href="#cb29-21" tabindex="-1"></a>                       <span class="fu">union</span>(cyan_genes<span class="sc">$</span>Genes, trends_genes<span class="sc">$</span>Symbol))</span>
+<span id="cb29-22"><a href="#cb29-22" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">20250529</span>)</span>
+<span id="cb29-23"><a href="#cb29-23" tabindex="-1"></a><span class="fu">require</span>(doMC)</span>
+<span id="cb29-24"><a href="#cb29-24" tabindex="-1"></a><span class="fu">registerDoMC</span>(<span class="at">cores =</span> <span class="dv">80</span>)</span>
+<span id="cb29-25"><a href="#cb29-25" tabindex="-1"></a>cvfit <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(exp_m[,all_genes], </span>
+<span id="cb29-26"><a href="#cb29-26" tabindex="-1"></a>                   <span class="fu">as.matrix</span>(suvr_data), <span class="at">family =</span> <span class="st">&quot;cox&quot;</span>, <span class="at">type.measure =</span> <span class="st">&quot;C&quot;</span>,</span>
+<span id="cb29-27"><a href="#cb29-27" tabindex="-1"></a>                   <span class="at">nfolds =</span> <span class="dv">5</span>, <span class="at">parallel =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-28"><a href="#cb29-28" tabindex="-1"></a><span class="fu">plot</span>(cvfit)</span>
+<span id="cb29-29"><a href="#cb29-29" tabindex="-1"></a></span>
+<span id="cb29-30"><a href="#cb29-30" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(exp_m[,all_genes], <span class="fu">as.matrix</span>(suvr_data), <span class="at">family =</span> <span class="st">&quot;cox&quot;</span>)</span>
+<span id="cb29-31"><a href="#cb29-31" tabindex="-1"></a>gene_cof <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit, <span class="at">s =</span> cvfit<span class="sc">$</span>lambda.min) <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb29-32"><a href="#cb29-32" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">cof =</span> <span class="dv">1</span>)</span>
+<span id="cb29-33"><a href="#cb29-33" tabindex="-1"></a>gene_cof<span class="sc">$</span>genes <span class="ot">&lt;-</span> <span class="fu">rownames</span>(gene_cof)</span>
+<span id="cb29-34"><a href="#cb29-34" tabindex="-1"></a><span class="fu">saveRDS</span>(gene_cof, <span class="st">&quot;data/lasso_res.rds&quot;</span>)</span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Random Forest:</li>
+</ol>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>surv <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_sampleinfo.rds&quot;</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="fu">rownames</span>(exp) <span class="ot">&lt;-</span> exp<span class="sc">$</span>gene</span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>exp<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">t</span>(exp) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a><span class="fu">which</span>(<span class="fu">rownames</span>(exp) <span class="sc">!=</span> surv<span class="sc">$</span>samples)</span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>exp_surv <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(exp,surv <span class="sc">%&gt;%</span> <span class="fu">select</span>(OS.time,OS))</span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a>cyan_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/cyan_module_genes.rds&quot;</span>)</span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a>trends_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/TrendCatcher_1y_up_6.rds&quot;</span>)</span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">colnames</span>(exp_surv),</span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>                       <span class="fu">union</span>(cyan_genes<span class="sc">$</span>Genes, trends_genes<span class="sc">$</span>Symbol))</span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a>dt <span class="ot">&lt;-</span> exp_surv <span class="sc">%&gt;%</span> <span class="fu">select</span>(OS.time,OS,all_genes)</span>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a><span class="fu">library</span>(randomForestSRC)</span>
+<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a><span class="fu">library</span>(parallel)</span>
+<span id="cb30-17"><a href="#cb30-17" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mc.cores =</span> <span class="dv">60</span>)</span>
+<span id="cb30-18"><a href="#cb30-18" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">rfsrc</span>(<span class="fu">Surv</span>(OS.time, OS) <span class="sc">~</span>., dt,</span>
+<span id="cb30-19"><a href="#cb30-19" tabindex="-1"></a>             <span class="at">ntree =</span> <span class="dv">1000</span>, <span class="at">nodesize =</span> <span class="dv">5</span>, <span class="at">nsplit =</span> <span class="dv">50</span>, <span class="at">importance =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb30-20"><a href="#cb30-20" tabindex="-1"></a></span>
+<span id="cb30-21"><a href="#cb30-21" tabindex="-1"></a>jk.obj <span class="ot">&lt;-</span> <span class="fu">subsample</span>(obj)</span>
+<span id="cb30-22"><a href="#cb30-22" tabindex="-1"></a>imp <span class="ot">&lt;-</span> jk.obj<span class="sc">$</span>rf<span class="sc">$</span>importance</span>
+<span id="cb30-23"><a href="#cb30-23" tabindex="-1"></a>imp <span class="ot">&lt;-</span> jk.obj<span class="sc">$</span>rf<span class="sc">$</span>importance <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb30-24"><a href="#cb30-24" tabindex="-1"></a><span class="fu">colnames</span>(imp) <span class="ot">&lt;-</span> <span class="st">&quot;importance&quot;</span></span>
+<span id="cb30-25"><a href="#cb30-25" tabindex="-1"></a>imp<span class="sc">$</span>genes <span class="ot">&lt;-</span> <span class="fu">rownames</span>(imp)</span>
+<span id="cb30-26"><a href="#cb30-26" tabindex="-1"></a><span class="fu">saveRDS</span>(imp,<span class="st">&quot;data/rf_res.rds&quot;</span>)</span></code></pre></div>
+<ol start="3" style="list-style-type: decimal">
+<li>Boruta</li>
+</ol>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="fu">library</span>(Boruta)</span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>boruta_selection <span class="ot">&lt;-</span> <span class="cf">function</span>(data, maxRuns, time, status) {</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">456</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>  boruta_rsf <span class="ot">&lt;-</span> <span class="fu">Boruta</span>(</span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>    data,</span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>    <span class="fu">Surv</span>(time, status),</span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>    <span class="at">respect.unordered.factors =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a>    <span class="at">maxRuns =</span> maxRuns,</span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a>    <span class="at">doTrace =</span> <span class="dv">0</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a>    <span class="at">pValue =</span> <span class="fl">0.05</span></span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>  )</span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a>  boruta_rsf</span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a>}</span>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a></span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>surv <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_sampleinfo.rds&quot;</span>)</span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a><span class="fu">rownames</span>(exp) <span class="ot">&lt;-</span> exp<span class="sc">$</span>gene</span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a>exp<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">t</span>(exp) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a><span class="fu">which</span>(<span class="fu">rownames</span>(exp) <span class="sc">!=</span> surv<span class="sc">$</span>samples)</span>
+<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a>exp_surv <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(exp,surv <span class="sc">%&gt;%</span> <span class="fu">select</span>(OS.time,OS)) <span class="sc">%&gt;%</span> </span>
+<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a>  <span class="fu">select</span>(OS.time, OS, <span class="fu">everything</span>())</span>
+<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a></span>
+<span id="cb31-25"><a href="#cb31-25" tabindex="-1"></a>cyan_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/cyan_module_genes.rds&quot;</span>)</span>
+<span id="cb31-26"><a href="#cb31-26" tabindex="-1"></a>trends_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/TrendCatcher_1y_up_6.rds&quot;</span>)</span>
+<span id="cb31-27"><a href="#cb31-27" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">colnames</span>(exp_surv),</span>
+<span id="cb31-28"><a href="#cb31-28" tabindex="-1"></a>                       <span class="fu">union</span>(cyan_genes<span class="sc">$</span>Genes, trends_genes<span class="sc">$</span>Symbol))</span>
+<span id="cb31-29"><a href="#cb31-29" tabindex="-1"></a>dt <span class="ot">&lt;-</span> exp_surv <span class="sc">%&gt;%</span> <span class="fu">select</span>(OS.time,OS,all_genes)</span>
+<span id="cb31-30"><a href="#cb31-30" tabindex="-1"></a></span>
+<span id="cb31-31"><a href="#cb31-31" tabindex="-1"></a>covariates <span class="ot">&lt;-</span> <span class="fu">colnames</span>(dt)[<span class="dv">3</span><span class="sc">:</span><span class="fu">ncol</span>(dt)]</span>
+<span id="cb31-32"><a href="#cb31-32" tabindex="-1"></a>boruta_rsf_os <span class="ot">&lt;-</span> <span class="fu">boruta_selection</span>(dt[covariates], <span class="dv">2000</span>, dt<span class="sc">$</span>OS.time, dt<span class="sc">$</span>OS)</span>
+<span id="cb31-33"><a href="#cb31-33" tabindex="-1"></a></span>
+<span id="cb31-34"><a href="#cb31-34" tabindex="-1"></a>res <span class="ot">&lt;-</span> boruta_rsf_os<span class="sc">$</span>ImpHistory</span>
+<span id="cb31-35"><a href="#cb31-35" tabindex="-1"></a>lz <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(boruta_rsf_os<span class="sc">$</span>ImpHistory),</span>
+<span id="cb31-36"><a href="#cb31-36" tabindex="-1"></a>             <span class="cf">function</span>(i)</span>
+<span id="cb31-37"><a href="#cb31-37" tabindex="-1"></a>               boruta_rsf_os<span class="sc">$</span>ImpHistory[<span class="fu">is.finite</span>(boruta_rsf_os<span class="sc">$</span>ImpHistory[, i]), i])</span>
+<span id="cb31-38"><a href="#cb31-38" tabindex="-1"></a><span class="fu">names</span>(lz) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(res)</span>
+<span id="cb31-39"><a href="#cb31-39" tabindex="-1"></a>median_imp <span class="ot">&lt;-</span> <span class="fu">sapply</span>(lz, median) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb31-40"><a href="#cb31-40" tabindex="-1"></a><span class="fu">colnames</span>(median_imp) <span class="ot">&lt;-</span> <span class="st">&quot;imp&quot;</span></span>
+<span id="cb31-41"><a href="#cb31-41" tabindex="-1"></a>median_imp<span class="sc">$</span>genes <span class="ot">&lt;-</span> <span class="fu">rownames</span>(median_imp)</span>
+<span id="cb31-42"><a href="#cb31-42" tabindex="-1"></a><span class="fu">saveRDS</span>(median_imp,<span class="st">&quot;data/boruta_res.rds&quot;</span>)</span></code></pre></div>
+<p>We can plot the importance score of RF and boruta:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>lasso_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/lasso_res.rds&quot;</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>rf_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/rf_res.rds&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(importance))</span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>boruta_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/boruta_res.rds&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(imp))</span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a>dt_all <span class="ot">&lt;-</span> <span class="fu">left_join</span>(</span>
+<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a>  lasso_res <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">lasso_score =</span> cof),</span>
+<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a>  rf_res <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">rf_score =</span> importance)</span>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a>) <span class="sc">%&gt;%</span> <span class="fu">left_join</span>(.,boruta_res <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">bo_score =</span> imp))</span></code></pre></div>
+<pre><code>#&gt; Joining with `by = join_by(genes)`
+#&gt; Joining with `by = join_by(genes)`</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt_all <span class="sc">%&gt;%</span> </span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>  <span class="fu">filter</span>(lasso_score <span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a>  <span class="fu">filter</span>(rf_score <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a>  <span class="fu">filter</span>(bo_score <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rank_rf =</span> <span class="fu">rank</span>(rf_score),</span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a>         <span class="at">rank_bo =</span> <span class="fu">rank</span>(bo_score))</span>
+<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a></span>
+<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a>  <span class="fu">arrange</span>(rf_score)</span>
+<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a>dt<span class="sc">$</span>genes <span class="ot">&lt;-</span> <span class="fu">factor</span>(dt<span class="sc">$</span>genes, <span class="at">levels =</span> dt<span class="sc">$</span>genes)</span>
+<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb34-12"><a href="#cb34-12" tabindex="-1"></a><span class="fu">library</span>(viridis)</span></code></pre></div>
+<pre><code>#&gt; Loading required package: viridisLite</code></pre>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggbarplot</span>(dt <span class="sc">%&gt;%</span> <span class="fu">slice_max</span>(<span class="at">order_by =</span> rf_score, <span class="at">n =</span> <span class="dv">50</span>),</span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>               <span class="at">x=</span><span class="st">&quot;genes&quot;</span>,<span class="at">y=</span><span class="st">&quot;rf_score&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;rf_score&quot;</span>)<span class="sc">+</span></span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.025</span>)) <span class="sc">+</span></span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>  <span class="fu">scale_fill_viridis</span>(<span class="at">option =</span> <span class="st">&quot;D&quot;</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggpar</span>(p,<span class="at">orientation =</span> <span class="st">&quot;horiz&quot;</span>,<span class="at">ylab =</span> <span class="st">&quot;Importance Score&quot;</span>,<span class="at">legend.title =</span> <span class="st">&quot;High</span><span class="sc">\n</span><span class="st">  |</span><span class="sc">\n</span><span class="st">Low&quot;</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a>      <span class="at">legend =</span> <span class="st">&quot;right&quot;</span>,<span class="at">title =</span> <span class="st">&quot;Random Forest&quot;</span>)</span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a>  <span class="fu">arrange</span>(bo_score)</span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a>dt<span class="sc">$</span>genes <span class="ot">&lt;-</span> <span class="fu">factor</span>(dt<span class="sc">$</span>genes, <span class="at">levels =</span> dt<span class="sc">$</span>genes)</span>
+<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggbarplot</span>(dt <span class="sc">%&gt;%</span> <span class="fu">slice_max</span>(<span class="at">order_by =</span> bo_score, <span class="at">n =</span> <span class="dv">50</span>),</span>
+<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a>               <span class="at">x=</span><span class="st">&quot;genes&quot;</span>,<span class="at">y=</span><span class="st">&quot;bo_score&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;bo_score&quot;</span>)<span class="sc">+</span></span>
+<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">9.5</span>))<span class="sc">+</span></span>
+<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a>  <span class="fu">scale_fill_viridis</span>(<span class="at">option =</span> <span class="st">&quot;D&quot;</span>)</span>
+<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggpar</span>(p,<span class="at">orientation =</span> <span class="st">&quot;horiz&quot;</span>,<span class="at">ylab =</span> <span class="st">&quot;Importance Score&quot;</span>,<span class="at">legend.title =</span> <span class="st">&quot;High</span><span class="sc">\n</span><span class="st">  |</span><span class="sc">\n</span><span class="st">Low&quot;</span>,</span>
+<span id="cb36-15"><a href="#cb36-15" tabindex="-1"></a>            <span class="at">legend =</span> <span class="st">&quot;right&quot;</span>,<span class="at">title =</span> <span class="st">&quot;Boruta&quot;</span>)</span>
+<span id="cb36-16"><a href="#cb36-16" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt; Attaching package: &#39;patchwork&#39;
+#&gt; 
+#&gt; The following object is masked from &#39;package:genefilter&#39;:
+#&gt; 
+#&gt;     area
+#&gt; 
+#&gt; The following object is masked from &#39;package:MASS&#39;:
+#&gt; 
+#&gt;     area</code></pre>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a>p1<span class="sc">+</span>p2</span></code></pre></div>
+<pre><code>#&gt; Ignoring unknown labels:
+#&gt; • colour : &quot;High | Low&quot;
+#&gt; • linetype : &quot;High | Low&quot;
+#&gt; • shape : &quot;High | Low&quot;
+#&gt; Ignoring unknown labels:
+#&gt; • colour : &quot;High | Low&quot;
+#&gt; • linetype : &quot;High | Low&quot;
+#&gt; • shape : &quot;High | Low&quot;</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-19-1.png" width="2400" /></p>
+<p>The results obtained from different methods are summarized to obtain
+the final candidate gene list.</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>cyan_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/cyan_module_genes.rds&quot;</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a>trends_genes <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/TrendCatcher_1y_up_6.rds&quot;</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" tabindex="-1"></a>cyan_trends_inter <span class="ot">&lt;-</span> <span class="fu">intersect</span>(cyan_genes<span class="sc">$</span>Genes, trends_genes<span class="sc">$</span>Symbol)</span>
+<span id="cb40-5"><a href="#cb40-5" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" tabindex="-1"></a>ml_inter <span class="ot">&lt;-</span> <span class="fu">intersect</span>(lasso_res<span class="sc">$</span>genes[<span class="fu">which</span>(lasso_res<span class="sc">$</span>cof <span class="sc">!=</span> <span class="dv">0</span>)],</span>
+<span id="cb40-7"><a href="#cb40-7" tabindex="-1"></a>                      rf_res<span class="sc">$</span>genes[<span class="fu">which</span>(rf_res<span class="sc">$</span>importance <span class="sc">&gt;</span> <span class="dv">0</span>)]) <span class="sc">%&gt;%</span> </span>
+<span id="cb40-8"><a href="#cb40-8" tabindex="-1"></a>            <span class="fu">intersect</span>(.,boruta_res<span class="sc">$</span>genes[<span class="fu">which</span>(boruta_res<span class="sc">$</span>imp <span class="sc">&gt;</span> <span class="dv">0</span>)])</span>
+<span id="cb40-9"><a href="#cb40-9" tabindex="-1"></a></span>
+<span id="cb40-10"><a href="#cb40-10" tabindex="-1"></a>final_genes <span class="ot">&lt;-</span> <span class="fu">intersect</span>(ml_inter, cyan_trends_inter)</span>
+<span id="cb40-11"><a href="#cb40-11" tabindex="-1"></a><span class="co">#saveRDS(final_genes,&quot;~/Breast_cancer_dev/data/final_gene.rds&quot;)</span></span>
+<span id="cb40-12"><a href="#cb40-12" tabindex="-1"></a>final_genes</span></code></pre></div>
+<pre><code>#&gt; [1] &quot;CDKN1A&quot; &quot;SAT1&quot;   &quot;KCNK1&quot;  &quot;CTHRC1&quot; &quot;RAB31&quot;  &quot;MAPK15&quot; &quot;BGN&quot;</code></pre>
+<p>We can show the expression patten of these 7 genes:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>master.list <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/master_list_conF.rds&quot;</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a>gene.symbol.arr <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;RAB31&quot;</span>,<span class="st">&quot;MAPK15&quot;</span>,<span class="st">&quot;CTHRC1&quot;</span>,<span class="st">&quot;KCNK1&quot;</span>,<span class="st">&quot;CDKN1A&quot;</span>,<span class="st">&quot;SAT1&quot;</span>,<span class="st">&quot;BGN&quot;</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>TrendCatcher<span class="sc">::</span><span class="fu">draw_GeneTraj</span>(<span class="at">master.list =</span> master.list, </span>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a>                            <span class="at">gene.symbol.arr =</span> gene.symbol.arr, </span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a>                            <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">4</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-21-1.png" width="2400" /></p>
+</div>
+<div id="further-validation-of-kcnk1" class="section level3">
+<h3>Further validation of KCNK1</h3>
+<p>We conducted a meta-analysis on more breast cancer data to validate
+the relationship between these 7 genes and prognosis. The data was
+downloaded from <a href="https://smuonco.shinyapps.io/PanCanSurvPlot/"
+class="uri">https://smuonco.shinyapps.io/PanCanSurvPlot/</a>.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(metafor,<span class="at">quietly =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb43-3"><a href="#cb43-3" tabindex="-1"></a>final_gene <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/final_gene.rds&quot;</span>)</span>
+<span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a>all_genes <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>,<span class="fu">length</span>(final_gene))</span>
+<span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(all_genes)){</span>
+<span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a>  tmp_gene <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">paste0</span>(<span class="st">&quot;~/Breast_cancer_dev/data/Meta_analysis/&quot;</span>,</span>
+<span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a>                              final_gene[i],<span class="st">&quot;_ResultsDatatable.csv&quot;</span>))</span>
+<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a>  tmp_gene <span class="ot">&lt;-</span> tmp_gene <span class="sc">%&gt;%</span> <span class="fu">filter</span>(CA <span class="sc">==</span> <span class="st">&quot;Breast Cancer (BC)&quot;</span>)</span>
+<span id="cb43-9"><a href="#cb43-9" tabindex="-1"></a>  tmp_gene <span class="ot">&lt;-</span> tmp_gene <span class="sc">%&gt;%</span></span>
+<span id="cb43-10"><a href="#cb43-10" tabindex="-1"></a>    <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb43-11"><a href="#cb43-11" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">hr_lower =</span> <span class="fu">strsplit</span>(Coxb_CI,<span class="st">&quot;-&quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span>] <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>(),</span>
+<span id="cb43-12"><a href="#cb43-12" tabindex="-1"></a>           <span class="at">hr_upper =</span> <span class="fu">strsplit</span>(Coxb_CI,<span class="st">&quot;-&quot;</span>)[[<span class="dv">1</span>]][<span class="dv">2</span>]<span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb43-13"><a href="#cb43-13" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.infinite</span>(hr_upper)) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-14"><a href="#cb43-14" tabindex="-1"></a>    <span class="fu">filter</span>(Survival <span class="sc">==</span> <span class="st">&quot;OS&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb43-15"><a href="#cb43-15" tabindex="-1"></a>    <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb43-16"><a href="#cb43-16" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">loghr =</span> <span class="fu">log</span>(Coxb_HR),</span>
+<span id="cb43-17"><a href="#cb43-17" tabindex="-1"></a>           <span class="at">seloghr =</span> (<span class="fu">log</span>(hr_upper) <span class="sc">-</span> <span class="fu">log</span>(hr_lower)) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> <span class="fl">1.96</span>)) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>()</span>
+<span id="cb43-18"><a href="#cb43-18" tabindex="-1"></a>  </span>
+<span id="cb43-19"><a href="#cb43-19" tabindex="-1"></a>  dt <span class="ot">&lt;-</span> tmp_gene <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(GSE, loghr, seloghr, Coxb_P)</span>
+<span id="cb43-20"><a href="#cb43-20" tabindex="-1"></a>  formatted_p <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">&quot;%.3f&quot;</span>, dt<span class="sc">$</span>Coxb_P)</span>
+<span id="cb43-21"><a href="#cb43-21" tabindex="-1"></a>  meta_result <span class="ot">&lt;-</span> <span class="fu">rma</span>(<span class="at">yi =</span> loghr, <span class="at">sei =</span> seloghr, <span class="at">data =</span> dt, <span class="at">method =</span> <span class="st">&quot;DL&quot;</span>)</span>
+<span id="cb43-22"><a href="#cb43-22" tabindex="-1"></a>  tmp_res <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">dt =</span> dt, <span class="at">formatted_p =</span> formatted_p, <span class="at">meta_res =</span> meta_result)</span>
+<span id="cb43-23"><a href="#cb43-23" tabindex="-1"></a>  all_genes[[i]] <span class="ot">&lt;-</span> tmp_res</span>
+<span id="cb43-24"><a href="#cb43-24" tabindex="-1"></a>  <span class="fu">names</span>(all_genes)[i] <span class="ot">&lt;-</span> final_gene[i]</span>
+<span id="cb43-25"><a href="#cb43-25" tabindex="-1"></a>  <span class="cf">if</span> (meta_result<span class="sc">$</span>pval <span class="sc">&lt;</span> <span class="fl">0.05</span>){</span>
+<span id="cb43-26"><a href="#cb43-26" tabindex="-1"></a>    <span class="fu">print</span>(final_gene[i])</span>
+<span id="cb43-27"><a href="#cb43-27" tabindex="-1"></a>  }</span>
+<span id="cb43-28"><a href="#cb43-28" tabindex="-1"></a>}</span></code></pre></div>
+<pre><code>#&gt; [1] &quot;KCNK1&quot;
+#&gt; [1] &quot;RAB31&quot;
+#&gt; [1] &quot;MAPK15&quot;</code></pre>
+<p>Three of these genes have a significantly HR &gt; 1. We then plot the
+forest plot for these genes.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>kcnk1 <span class="ot">&lt;-</span> all_genes<span class="sc">$</span>KCNK1</span>
+<span id="cb45-2"><a href="#cb45-2" tabindex="-1"></a><span class="fu">forest</span>(kcnk1<span class="sc">$</span>meta_res, <span class="at">slab =</span> kcnk1<span class="sc">$</span>dt<span class="sc">$</span>GSE, <span class="at">atransf =</span> exp, </span>
+<span id="cb45-3"><a href="#cb45-3" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">&quot;Hazard Ratio&quot;</span>, <span class="at">ilab =</span> kcnk1<span class="sc">$</span>formatted_p, <span class="at">ilab.xpos =</span> <span class="sc">-</span><span class="dv">4</span>,</span>
+<span id="cb45-4"><a href="#cb45-4" tabindex="-1"></a>       <span class="at">header =</span> F)</span>
+<span id="cb45-5"><a href="#cb45-5" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">27</span>, <span class="st">&quot;P value&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb45-6"><a href="#cb45-6" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="dv">9</span>, <span class="dv">27</span>, <span class="st">&quot;Study&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb45-7"><a href="#cb45-7" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">10</span>, <span class="dv">27</span>, <span class="st">&quot;Estimate [95% CI]&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb45-8"><a href="#cb45-8" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="fu">sprintf</span>(<span class="st">&quot;%.3f&quot;</span>,kcnk1<span class="sc">$</span>meta_res<span class="sc">$</span>pval), <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-23-1.png" width="2400" /></p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>RAB31 <span class="ot">&lt;-</span> all_genes<span class="sc">$</span>RAB31</span>
+<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a><span class="fu">forest</span>(RAB31<span class="sc">$</span>meta_res, <span class="at">slab =</span> RAB31<span class="sc">$</span>dt<span class="sc">$</span>GSE, <span class="at">atransf =</span> exp, </span>
+<span id="cb46-3"><a href="#cb46-3" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">&quot;Hazard Ratio&quot;</span>, <span class="at">ilab =</span> RAB31<span class="sc">$</span>formatted_p, <span class="at">ilab.xpos =</span> <span class="sc">-</span><span class="dv">6</span>,</span>
+<span id="cb46-4"><a href="#cb46-4" tabindex="-1"></a>       <span class="at">header =</span> F)</span>
+<span id="cb46-5"><a href="#cb46-5" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="fl">4.5</span>, <span class="fl">34.5</span>, <span class="st">&quot;P value&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb46-6"><a href="#cb46-6" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="fl">13.5</span>, <span class="fl">34.5</span>, <span class="st">&quot;Study&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb46-7"><a href="#cb46-7" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">11</span>, <span class="fl">34.5</span>, <span class="st">&quot;Estimate [95% CI]&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb46-8"><a href="#cb46-8" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="dv">6</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="fu">sprintf</span>(<span class="st">&quot;%.3f&quot;</span>,RAB31<span class="sc">$</span>meta_res<span class="sc">$</span>pval), <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-23-2.png" width="2400" /></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>MAPK15 <span class="ot">&lt;-</span> all_genes<span class="sc">$</span>MAPK15</span>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a><span class="fu">forest</span>(MAPK15<span class="sc">$</span>meta_res, <span class="at">slab =</span> MAPK15<span class="sc">$</span>dt<span class="sc">$</span>GSE, <span class="at">atransf =</span> exp, </span>
+<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">&quot;Hazard Ratio&quot;</span>, <span class="at">ilab =</span> MAPK15<span class="sc">$</span>formatted_p, <span class="at">ilab.xpos =</span> <span class="sc">-</span><span class="dv">6</span>,</span>
+<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>       <span class="at">header =</span> F)</span>
+<span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="fl">4.5</span>, <span class="fl">21.5</span>, <span class="st">&quot;P value&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb47-6"><a href="#cb47-6" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="dv">12</span>, <span class="fl">21.5</span>, <span class="st">&quot;Study&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb47-7"><a href="#cb47-7" tabindex="-1"></a><span class="fu">text</span>(<span class="dv">10</span>, <span class="fl">21.5</span>, <span class="st">&quot;Estimate [95% CI]&quot;</span>, <span class="at">pos =</span> <span class="dv">2</span>, <span class="at">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb47-8"><a href="#cb47-8" tabindex="-1"></a><span class="fu">text</span>(<span class="sc">-</span><span class="dv">6</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="fu">sprintf</span>(<span class="st">&quot;%.3f&quot;</span>,MAPK15<span class="sc">$</span>meta_res<span class="sc">$</span>pval), <span class="at">cex =</span> <span class="fl">0.8</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-23-3.png" width="2400" /></p>
+<p>Among them, the P value of KCNK1 was significant and had the largest
+HR. Therefore, we selected KCNK1 as the final candidate gene.</p>
+<p>We further check the expression of KCNK1 and the relevance with
+survival in <code>brca_metabric</code> dataset. The data was downloaded
+from cbioportal.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb48-2"><a href="#cb48-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:metafor&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" tabindex="-1"></a>phe <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;~/Breast_cancer_dev/data/brca_metabric/data_clinical_patient.txt&quot;</span>,</span>
+<span id="cb48-4"><a href="#cb48-4" tabindex="-1"></a>                         <span class="at">data.table =</span> F,<span class="at">skip =</span> <span class="st">&quot;PATIENT_ID&quot;</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" tabindex="-1"></a>phe_sample <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;~/Breast_cancer_dev/data/brca_metabric/data_clinical_sample.txt&quot;</span>,</span>
+<span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a>                                <span class="at">data.table =</span> F,<span class="at">skip =</span> <span class="st">&quot;PATIENT_ID&quot;</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" tabindex="-1"></a>exp <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;~/Breast_cancer_dev/data/brca_metabric/data_mrna_illumina_microarray.txt&quot;</span>,<span class="at">data.table =</span> F)</span>
+<span id="cb48-8"><a href="#cb48-8" tabindex="-1"></a>dt <span class="ot">&lt;-</span> exp <span class="sc">%&gt;%</span> </span>
+<span id="cb48-9"><a href="#cb48-9" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Hugo_Symbol <span class="sc">==</span> <span class="st">&quot;KCNK1&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-10"><a href="#cb48-10" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="sc">-</span><span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>)</span>
+<span id="cb48-11"><a href="#cb48-11" tabindex="-1"></a>dt<span class="sc">$</span>sample <span class="ot">&lt;-</span> <span class="fu">rownames</span>(dt)</span>
+<span id="cb48-12"><a href="#cb48-12" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">left_join</span>(dt, phe_sample <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">sample =</span> SAMPLE_ID)) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-13"><a href="#cb48-13" tabindex="-1"></a>  <span class="fu">left_join</span>(.,phe <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(PATIENT_ID,OS_MONTHS,OS_STATUS))</span></code></pre></div>
+<pre><code>#&gt; Joining with `by = join_by(sample)`
+#&gt; Joining with `by = join_by(PATIENT_ID)`</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb50-2"><a href="#cb50-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="sc">!</span>(TUMOR_STAGE <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="cn">NA</span>)))</span>
+<span id="cb50-3"><a href="#cb50-3" tabindex="-1"></a><span class="fu">ggboxplot</span>(df, <span class="at">x=</span><span class="st">&quot;TUMOR_STAGE&quot;</span>,<span class="at">y=</span><span class="st">&quot;exp&quot;</span>,</span>
+<span id="cb50-4"><a href="#cb50-4" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">&quot;TUMOR_STAGE&quot;</span>,</span>
+<span id="cb50-5"><a href="#cb50-5" tabindex="-1"></a>          <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">&quot;1&quot;</span><span class="ot">=</span><span class="st">&quot;#80A9C9&quot;</span>,<span class="st">&quot;2&quot;</span><span class="ot">=</span><span class="st">&quot;#7BC289&quot;</span>,<span class="st">&quot;3&quot;</span><span class="ot">=</span><span class="st">&quot;#89C7C1&quot;</span>,<span class="st">&quot;4&quot;</span><span class="ot">=</span><span class="st">&quot;#D3D3D3&quot;</span>),</span>
+<span id="cb50-6"><a href="#cb50-6" tabindex="-1"></a>          <span class="at">legend =</span> <span class="st">&quot;none&quot;</span>,<span class="at">xlab =</span> <span class="st">&quot;Tumor Stages&quot;</span>,<span class="at">ylab =</span> <span class="st">&quot;Normalized Expression&quot;</span>)<span class="sc">+</span></span>
+<span id="cb50-7"><a href="#cb50-7" tabindex="-1"></a>  <span class="fu">stat_compare_means</span>()</span></code></pre></div>
+<pre><code>#&gt; Warning: No shared levels found between `names(values)` of the manual scale and the
+#&gt; data&#39;s colour values.</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-24-1.png" width="2400" /></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb52-2"><a href="#cb52-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">status =</span> <span class="fu">gsub</span>(<span class="st">&quot;:.+&quot;</span>,<span class="st">&quot;&quot;</span>,OS_STATUS) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb52-3"><a href="#cb52-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">KCNK1 Expression</span><span class="st">`</span> <span class="ot">=</span> exp)</span>
+<span id="cb52-4"><a href="#cb52-4" tabindex="-1"></a></span>
+<span id="cb52-5"><a href="#cb52-5" tabindex="-1"></a>ezcox<span class="sc">::</span><span class="fu">show_forest</span>(dt,<span class="at">covariates =</span> <span class="st">&quot;KCNK1 Expression&quot;</span>,<span class="at">time =</span> <span class="st">&quot;OS_MONTHS&quot;</span>,<span class="at">status =</span> <span class="st">&quot;status&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; =&gt; Processing variable KCNK1 Expression
+#&gt; ==&gt; Building Surv object...
+#&gt; ==&gt; Building Cox model...
+#&gt; ==&gt; Done.
+#&gt; Resized limits to included dashed line in forest panel
+#&gt; `height` was translated to `width`.</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-24-2.png" width="2400" /></p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" tabindex="-1"></a>dt1 <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb54-2"><a href="#cb54-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">KCNK1</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">case_when</span>(</span>
+<span id="cb54-3"><a href="#cb54-3" tabindex="-1"></a>    exp <span class="sc">&lt;</span> <span class="fu">median</span>(exp) <span class="sc">~</span> <span class="st">&quot;Low&quot;</span>,</span>
+<span id="cb54-4"><a href="#cb54-4" tabindex="-1"></a>    exp <span class="sc">&gt;</span> <span class="fu">median</span>(exp) <span class="sc">~</span> <span class="st">&quot;High&quot;</span></span>
+<span id="cb54-5"><a href="#cb54-5" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> </span>
+<span id="cb54-6"><a href="#cb54-6" tabindex="-1"></a>  <span class="fu">filter</span>(OS_MONTHS <span class="sc">&lt;</span> <span class="dv">200</span>)</span>
+<span id="cb54-7"><a href="#cb54-7" tabindex="-1"></a></span>
+<span id="cb54-8"><a href="#cb54-8" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb54-9"><a href="#cb54-9" tabindex="-1"></a><span class="fu">library</span>(survminer)</span></code></pre></div>
+<pre><code>#&gt; 
+#&gt; Attaching package: &#39;survminer&#39;
+#&gt; 
+#&gt; The following object is masked from &#39;package:survival&#39;:
+#&gt; 
+#&gt;     myeloma</code></pre>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(OS_MONTHS, status) <span class="sc">~</span> KCNK1, <span class="at">data =</span> dt1)</span>
+<span id="cb56-2"><a href="#cb56-2" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" tabindex="-1"></a><span class="fu">ggsurvplot</span>(fit, <span class="at">data =</span> dt1, <span class="at">pval =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>, <span class="at">risk.table =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>#&gt; Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+#&gt; ℹ Please use tidy evaluation idioms with `aes()`.
+#&gt; ℹ See also `vignette(&quot;ggplot2-in-packages&quot;)` for more information.
+#&gt; ℹ The deprecated feature was likely used in the survminer package.
+#&gt;   Please report the issue at &lt;https://github.com/kassambara/survminer/issues&gt;.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.</code></pre>
+<pre><code>#&gt; Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+#&gt; ℹ Please use `linewidth` instead.
+#&gt; ℹ The deprecated feature was likely used in the ggpubr package.
+#&gt;   Please report the issue at &lt;https://github.com/kassambara/ggpubr/issues&gt;.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.</code></pre>
+<pre><code>#&gt; Warning: ggtheme is not a valid theme.
+#&gt; Please use `theme()` to construct themes.</code></pre>
+<pre><code>#&gt; Ignoring unknown labels:
+#&gt; • linetype : &quot;1&quot;</code></pre>
+<pre><code>#&gt; Warning: ggtheme is not a valid theme.
+#&gt; Please use `theme()` to construct themes.</code></pre>
+<pre><code>#&gt; Warning: tables.theme is not a valid theme.
+#&gt; Please use `theme()` to construct themes.</code></pre>
+<pre><code>#&gt; Ignoring unknown labels:
+#&gt; • linetype : &quot;1&quot;
+#&gt; Ignoring unknown labels:
+#&gt; • linetype : &quot;1&quot;
+#&gt; Ignoring unknown labels:
+#&gt; • linetype : &quot;1&quot;
+#&gt; Ignoring unknown labels:
+#&gt; • colour : &quot;Strata&quot;</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-24-3.png" width="2400" /></p>
+<p>Next, we examined the expression of KCNK1 in single-cell data to see
+if it is expressed specifically by cancer cells. The single cell data
+was downloaded from Single Cell Portal (<a
+href="https://singlecell.broadinstitute.org/single_cell/study/SCP1039/"
+class="uri">https://singlecell.broadinstitute.org/single_cell/study/SCP1039/</a>).</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb64-2"><a href="#cb64-2" tabindex="-1"></a>umap <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;~/Breast_cancer_dev/data/bc_sc/Whole_miniatlas_umap.coords.tsv&quot;</span>,</span>
+<span id="cb64-3"><a href="#cb64-3" tabindex="-1"></a>                          <span class="at">data.table =</span> F,<span class="at">header =</span> T)</span>
+<span id="cb64-4"><a href="#cb64-4" tabindex="-1"></a>umap <span class="ot">&lt;-</span> umap[<span class="sc">-</span><span class="dv">1</span>,]</span>
+<span id="cb64-5"><a href="#cb64-5" tabindex="-1"></a>meta <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;~/Breast_cancer_dev/data/bc_sc/Whole_miniatlas_meta.csv&quot;</span>,<span class="at">data.table =</span> F)</span>
+<span id="cb64-6"><a href="#cb64-6" tabindex="-1"></a>meta <span class="ot">&lt;-</span> meta[<span class="sc">-</span><span class="dv">1</span>,]</span>
+<span id="cb64-7"><a href="#cb64-7" tabindex="-1"></a>meta <span class="ot">&lt;-</span> <span class="fu">left_join</span>(meta <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(NAME,celltype_major,Patient),</span>
+<span id="cb64-8"><a href="#cb64-8" tabindex="-1"></a>                  umap)</span></code></pre></div>
+<pre><code>#&gt; Joining with `by = join_by(NAME)`</code></pre>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" tabindex="-1"></a><span class="fu">rownames</span>(meta) <span class="ot">&lt;-</span> meta<span class="sc">$</span>NAME</span>
+<span id="cb66-2"><a href="#cb66-2" tabindex="-1"></a>meta <span class="ot">&lt;-</span> meta <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">X =</span> <span class="fu">as.numeric</span>(X), <span class="at">Y=</span> <span class="fu">as.numeric</span>(Y))</span>
+<span id="cb66-3"><a href="#cb66-3" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(Seurat,<span class="at">quietly =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb66-4"><a href="#cb66-4" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">ReadMtx</span>(<span class="at">mtx =</span> <span class="st">&quot;~/Breast_cancer_dev/data/bc_sc/BrCa_Atlas_Count_out/matrix.mtx.gz&quot;</span>,</span>
+<span id="cb66-5"><a href="#cb66-5" tabindex="-1"></a>               <span class="at">cells =</span> <span class="st">&quot;~/Breast_cancer_dev/data/bc_sc/BrCa_Atlas_Count_out/barcodes.tsv.gz&quot;</span>,</span>
+<span id="cb66-6"><a href="#cb66-6" tabindex="-1"></a>               <span class="at">features =</span> <span class="st">&quot;~/Breast_cancer_dev/data/bc_sc/BrCa_Atlas_Count_out/features.tsv.gz&quot;</span>)</span>
+<span id="cb66-7"><a href="#cb66-7" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">CreateSeuratObject</span>(obj, <span class="at">meta.data =</span> meta)</span>
+<span id="cb66-8"><a href="#cb66-8" tabindex="-1"></a>obj <span class="ot">&lt;-</span> <span class="fu">NormalizeData</span>(obj)</span></code></pre></div>
+<pre><code>#&gt; Normalizing layer: counts</code></pre>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" tabindex="-1"></a>normalized_data <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(obj, <span class="at">assay =</span> <span class="st">&quot;RNA&quot;</span>, <span class="at">slot =</span> <span class="st">&quot;data&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Warning: The `slot` argument of `GetAssayData()` is deprecated as of SeuratObject 5.0.0.
+#&gt; ℹ Please use the `layer` argument instead.
+#&gt; This warning is displayed once every 8 hours.
+#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#&gt; generated.</code></pre>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" tabindex="-1"></a>gene_exp <span class="ot">&lt;-</span> normalized_data[<span class="st">&quot;KCNK1&quot;</span>,] <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" tabindex="-1"></a>gene_exp<span class="sc">$</span>NAME <span class="ot">&lt;-</span> <span class="fu">rownames</span>(gene_exp)</span>
+<span id="cb70-3"><a href="#cb70-3" tabindex="-1"></a>gene_exp <span class="ot">&lt;-</span> <span class="fu">left_join</span>(gene_exp, meta)</span></code></pre></div>
+<pre><code>#&gt; Joining with `by = join_by(NAME)`</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" tabindex="-1"></a>gene_exp <span class="ot">&lt;-</span> gene_exp <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">`</span><span class="at">Cell Type</span><span class="st">`</span> <span class="ot">=</span> celltype_major)</span>
+<span id="cb72-2"><a href="#cb72-2" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span>
+<span id="cb72-3"><a href="#cb72-3" tabindex="-1"></a>color <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;#5EB8B4&quot;</span>,<span class="st">&quot;#269CB8&quot;</span>,<span class="st">&quot;#F1C051&quot;</span>,<span class="st">&quot;#F0BBCC&quot;</span>,</span>
+<span id="cb72-4"><a href="#cb72-4" tabindex="-1"></a>           <span class="st">&quot;#EAE6B9&quot;</span>,<span class="st">&quot;#8B7CB1&quot;</span>,<span class="st">&quot;#B0C7E3&quot;</span>,<span class="st">&quot;#225757&quot;</span>,<span class="st">&quot;#3E4593&quot;</span>)</span>
+<span id="cb72-5"><a href="#cb72-5" tabindex="-1"></a><span class="fu">ggscatter</span>(gene_exp,<span class="at">x=</span><span class="st">&quot;X&quot;</span>,<span class="at">y=</span><span class="st">&quot;Y&quot;</span>,<span class="at">color =</span><span class="st">&quot;Cell Type&quot;</span>,<span class="at">palette =</span> color,</span>
+<span id="cb72-6"><a href="#cb72-6" tabindex="-1"></a>          <span class="at">xlab =</span> <span class="st">&quot;UMAP1&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;UMAP2&quot;</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-25-1.png" width="2400" /></p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" tabindex="-1"></a>obj<span class="sc">@</span>reductions<span class="sc">$</span>umap <span class="ot">&lt;-</span> <span class="fu">CreateDimReducObject</span>(<span class="at">embeddings =</span> <span class="fu">as.matrix</span>(meta <span class="sc">%&gt;%</span></span>
+<span id="cb73-2"><a href="#cb73-2" tabindex="-1"></a>                                                                     dplyr<span class="sc">::</span><span class="fu">select</span>(X,Y) <span class="sc">%&gt;%</span> </span>
+<span id="cb73-3"><a href="#cb73-3" tabindex="-1"></a>                                                                     dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">UMAP_1 =</span> <span class="dv">1</span>,</span>
+<span id="cb73-4"><a href="#cb73-4" tabindex="-1"></a>                                                                                   <span class="at">UMAP_2 =</span> <span class="dv">2</span>)), </span>
+<span id="cb73-5"><a href="#cb73-5" tabindex="-1"></a>                                                <span class="at">assay =</span> <span class="st">&quot;RNA&quot;</span>, <span class="at">key =</span> <span class="st">&quot;UMAP_&quot;</span>)</span>
+<span id="cb73-6"><a href="#cb73-6" tabindex="-1"></a>custom_colors <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">c</span>(<span class="st">&quot;#eeeeee&quot;</span>, <span class="st">&quot;#fe7210&quot;</span>, <span class="st">&quot;#ea6834&quot;</span>))(<span class="dv">10</span>)</span>
+<span id="cb73-7"><a href="#cb73-7" tabindex="-1"></a><span class="fu">FeaturePlot</span>(obj, <span class="at">features =</span> <span class="st">&quot;KCNK1&quot;</span>, </span>
+<span id="cb73-8"><a href="#cb73-8" tabindex="-1"></a>            <span class="at">order =</span> T, <span class="at">pt.size =</span> <span class="dv">1</span>,<span class="at">raster=</span><span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb73-9"><a href="#cb73-9" tabindex="-1"></a>  <span class="fu">scale_colour_gradientn</span>(<span class="at">colours =</span> custom_colors)<span class="sc">+</span></span>
+<span id="cb73-10"><a href="#cb73-10" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;KCNK1 Expression&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Scale for colour is already present.
+#&gt; Adding another scale for colour, which will replace the existing scale.</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-25-2.png" width="2400" /></p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" tabindex="-1"></a>pseudo_obj <span class="ot">&lt;-</span> <span class="fu">AggregateExpression</span>(obj, <span class="at">assays =</span> <span class="st">&quot;RNA&quot;</span>, </span>
+<span id="cb75-2"><a href="#cb75-2" tabindex="-1"></a>                                  <span class="at">return.seurat =</span> T, </span>
+<span id="cb75-3"><a href="#cb75-3" tabindex="-1"></a>                                  <span class="at">group.by =</span> <span class="fu">c</span>(<span class="st">&quot;Patient&quot;</span>,<span class="st">&quot;celltype_major&quot;</span>))</span></code></pre></div>
+<pre><code>#&gt; Centering and scaling data matrix</code></pre>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" tabindex="-1"></a>pse <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(pseudo_obj, <span class="at">assay =</span> <span class="st">&quot;RNA&quot;</span>, <span class="at">slot =</span> <span class="st">&quot;data&quot;</span>)</span>
+<span id="cb77-2"><a href="#cb77-2" tabindex="-1"></a>pse <span class="ot">&lt;-</span> pse[<span class="st">&quot;KCNK1&quot;</span>,] <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>)</span>
+<span id="cb77-3"><a href="#cb77-3" tabindex="-1"></a>pse<span class="sc">$</span>cell <span class="ot">&lt;-</span> <span class="fu">rownames</span>(pse)</span>
+<span id="cb77-4"><a href="#cb77-4" tabindex="-1"></a>dt <span class="ot">&lt;-</span> pse <span class="sc">%&gt;%</span> </span>
+<span id="cb77-5"><a href="#cb77-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">gsub</span>(<span class="st">&quot;.+_&quot;</span>,<span class="st">&quot;&quot;</span>,cell))</span>
+<span id="cb77-6"><a href="#cb77-6" tabindex="-1"></a><span class="fu">ggboxplot</span>(dt,<span class="at">x=</span><span class="st">&quot;type&quot;</span>,<span class="at">y=</span><span class="st">&quot;exp&quot;</span>,<span class="at">ylab =</span> F,</span>
+<span id="cb77-7"><a href="#cb77-7" tabindex="-1"></a>          <span class="at">color =</span> <span class="st">&quot;type&quot;</span>,</span>
+<span id="cb77-8"><a href="#cb77-8" tabindex="-1"></a>          <span class="at">palette =</span> color,<span class="at">legend =</span> <span class="st">&quot;none&quot;</span>)<span class="sc">+</span></span>
+<span id="cb77-9"><a href="#cb77-9" tabindex="-1"></a>  <span class="fu">coord_flip</span>()<span class="sc">+</span></span>
+<span id="cb77-10"><a href="#cb77-10" tabindex="-1"></a>  <span class="fu">stat_compare_means</span>(<span class="at">label.y =</span> <span class="fl">0.7</span>)<span class="sc">+</span></span>
+<span id="cb77-11"><a href="#cb77-11" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">&quot;Pseudo-bulk Expression&quot;</span>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-25-3.png" width="2400" /></p>
+</div>
+<div id="single-gene-analysis-of-kcnk1" class="section level3">
+<h3>Single gene analysis of KCNK1</h3>
+<p>We divided the TCGA samples into high and low groups based on the
+expression of KCNK1, and then analyzed the differentially expressed
+genes.</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span>
+<span id="cb78-2"><a href="#cb78-2" tabindex="-1"></a><span class="fu">library</span>(foreach)</span>
+<span id="cb78-3"><a href="#cb78-3" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb78-4"><a href="#cb78-4" tabindex="-1"></a>kcnk1_exp <span class="ot">&lt;-</span> exp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gene <span class="sc">==</span> <span class="st">&quot;KCNK1&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb78-5"><a href="#cb78-5" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb78-6"><a href="#cb78-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sample =</span> <span class="fu">rownames</span>(.)) <span class="sc">%&gt;%</span> </span>
+<span id="cb78-7"><a href="#cb78-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exp_type =</span> <span class="fu">case_when</span>(</span>
+<span id="cb78-8"><a href="#cb78-8" tabindex="-1"></a>    exp <span class="sc">&lt;</span> <span class="fu">quantile</span>(exp)[<span class="dv">2</span>] <span class="sc">~</span> <span class="st">&quot;L&quot;</span>,</span>
+<span id="cb78-9"><a href="#cb78-9" tabindex="-1"></a>    exp <span class="sc">&gt;</span> <span class="fu">quantile</span>(exp)[<span class="dv">4</span>] <span class="sc">~</span> <span class="st">&quot;H&quot;</span>,</span>
+<span id="cb78-10"><a href="#cb78-10" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;others&quot;</span></span>
+<span id="cb78-11"><a href="#cb78-11" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(exp_type <span class="sc">!=</span> <span class="st">&quot;others&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb78-12"><a href="#cb78-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">new_name =</span> <span class="fu">paste0</span>(exp_type,<span class="fu">row_number</span>(.)))</span>
+<span id="cb78-13"><a href="#cb78-13" tabindex="-1"></a>exp_filter <span class="ot">&lt;-</span> exp <span class="sc">%&gt;%</span> <span class="fu">select</span>(gene,kcnk1_exp<span class="sc">$</span>sample)</span>
+<span id="cb78-14"><a href="#cb78-14" tabindex="-1"></a><span class="fu">colnames</span>(exp_filter)[<span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(exp_filter)] <span class="ot">&lt;-</span> kcnk1_exp<span class="sc">$</span>new_name</span>
+<span id="cb78-15"><a href="#cb78-15" tabindex="-1"></a><span class="fu">rownames</span>(exp_filter) <span class="ot">&lt;-</span> exp_filter<span class="sc">$</span>gene</span>
+<span id="cb78-16"><a href="#cb78-16" tabindex="-1"></a>exp_filter<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb78-17"><a href="#cb78-17" tabindex="-1"></a>diff_res <span class="ot">&lt;-</span> <span class="fu">get_diff_bulk</span>(<span class="at">group =</span> <span class="st">&quot;L-H&quot;</span>,<span class="at">df =</span> exp_filter, <span class="at">n_cores =</span> <span class="dv">100</span>)</span>
+<span id="cb78-18"><a href="#cb78-18" tabindex="-1"></a>diff_res <span class="ot">&lt;-</span> diff_res <span class="sc">%&gt;%</span> </span>
+<span id="cb78-19"><a href="#cb78-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2fc =</span> <span class="fu">log2</span>(fc <span class="sc">+</span> <span class="fl">0.001</span>))</span>
+<span id="cb78-20"><a href="#cb78-20" tabindex="-1"></a><span class="fu">saveRDS</span>(diff_res,<span class="st">&quot;data/kcnk1_diff_exp.rds&quot;</span>)</span></code></pre></div>
+<p>Volcano plot:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb79-2"><a href="#cb79-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:Seurat&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb79-3"><a href="#cb79-3" tabindex="-1"></a></span>
+<span id="cb79-4"><a href="#cb79-4" tabindex="-1"></a>diff_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/kcnk1_diff_exp.rds&quot;</span>)</span>
+<span id="cb79-5"><a href="#cb79-5" tabindex="-1"></a>dt <span class="ot">&lt;-</span> diff_res <span class="sc">%&gt;%</span> </span>
+<span id="cb79-6"><a href="#cb79-6" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(fc <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> diff <span class="sc">==</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb79-7"><a href="#cb79-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2fc =</span> <span class="fu">log2</span>(fc <span class="sc">+</span> <span class="fl">0.1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb79-8"><a href="#cb79-8" tabindex="-1"></a>  <span class="fu">filter</span>(gene <span class="sc">!=</span> <span class="st">&quot;KCNK1&quot;</span>)</span>
+<span id="cb79-9"><a href="#cb79-9" tabindex="-1"></a><span class="do">###火山图</span></span>
+<span id="cb79-10"><a href="#cb79-10" tabindex="-1"></a><span class="fu">library</span>(EnhancedVolcano)</span>
+<span id="cb79-11"><a href="#cb79-11" tabindex="-1"></a><span class="fu">EnhancedVolcano</span>(</span>
+<span id="cb79-12"><a href="#cb79-12" tabindex="-1"></a>  dt,</span>
+<span id="cb79-13"><a href="#cb79-13" tabindex="-1"></a>  <span class="at">lab =</span> dt<span class="sc">$</span>gene,</span>
+<span id="cb79-14"><a href="#cb79-14" tabindex="-1"></a>  <span class="at">x =</span> <span class="st">&quot;log2fc&quot;</span>,</span>
+<span id="cb79-15"><a href="#cb79-15" tabindex="-1"></a>  <span class="at">y =</span> <span class="st">&quot;p_value&quot;</span>,</span>
+<span id="cb79-16"><a href="#cb79-16" tabindex="-1"></a>  <span class="at">pCutoffCol =</span> <span class="st">&quot;p_adj&quot;</span>,</span>
+<span id="cb79-17"><a href="#cb79-17" tabindex="-1"></a>  <span class="at">pCutoff =</span> <span class="fl">0.05</span>,</span>
+<span id="cb79-18"><a href="#cb79-18" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;KCNK1 High VS Low&quot;</span></span>
+<span id="cb79-19"><a href="#cb79-19" tabindex="-1"></a>)</span></code></pre></div>
+<p><img src="report_main_files/figure-html/unnamed-chunk-27-1.png" width="2400" /></p>
+<p>We then performed GSEA pathway enrichment analysis (GO pathway and
+Hallmarks pathway) based on the results of differential gene analysis;
+in addition, we calculated the enrichment scores (NES) of these pathways
+for each sample based on GSVA and compared the NES differences between
+the KCNK1 high expression and low expression groups.</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" tabindex="-1"></a><span class="do">########GSEA</span></span>
+<span id="cb80-2"><a href="#cb80-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb80-3"><a href="#cb80-3" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/kcnk1_diff_exp.rds&quot;</span>)</span>
+<span id="cb80-4"><a href="#cb80-4" tabindex="-1"></a><span class="fu">library</span>(fgsea)</span>
+<span id="cb80-5"><a href="#cb80-5" tabindex="-1"></a>pat <span class="ot">&lt;-</span> <span class="fu">gmtPathways</span>(<span class="st">&quot;data/c5.go.v2025.1.Hs.symbols.gmt&quot;</span>)</span>
+<span id="cb80-6"><a href="#cb80-6" tabindex="-1"></a>pat2 <span class="ot">&lt;-</span> <span class="fu">gmtPathways</span>(<span class="st">&quot;data/h.all.v2024.1.Hs.symbols.gmt&quot;</span>)</span>
+<span id="cb80-7"><a href="#cb80-7" tabindex="-1"></a>pat <span class="ot">&lt;-</span> <span class="fu">c</span>(pat,pat2)</span>
+<span id="cb80-8"><a href="#cb80-8" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb80-9"><a href="#cb80-9" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(diff <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> fc <span class="sc">==</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb80-10"><a href="#cb80-10" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.nan</span>(p_value)) <span class="sc">%&gt;%</span> </span>
+<span id="cb80-11"><a href="#cb80-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stat =</span> log2fc <span class="sc">*</span> (<span class="sc">-</span><span class="fu">log10</span>(p_value)))</span>
+<span id="cb80-12"><a href="#cb80-12" tabindex="-1"></a>ranking <span class="ot">&lt;-</span> dt<span class="sc">$</span>stat</span>
+<span id="cb80-13"><a href="#cb80-13" tabindex="-1"></a><span class="fu">names</span>(ranking) <span class="ot">&lt;-</span> dt<span class="sc">$</span>gene</span>
+<span id="cb80-14"><a href="#cb80-14" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">fgsea</span>(<span class="at">pathways =</span> pat, <span class="at">stats =</span> ranking, <span class="at">minSize =</span> <span class="dv">5</span>, <span class="at">maxSize =</span> <span class="dv">2000</span>, <span class="at">nproc =</span> <span class="dv">100</span>)</span>
+<span id="cb80-15"><a href="#cb80-15" tabindex="-1"></a><span class="fu">saveRDS</span>(res,<span class="st">&quot;data/kcnk1_gsea_res.rds&quot;</span>)</span>
+<span id="cb80-16"><a href="#cb80-16" tabindex="-1"></a></span>
+<span id="cb80-17"><a href="#cb80-17" tabindex="-1"></a><span class="do">###gsva</span></span>
+<span id="cb80-18"><a href="#cb80-18" tabindex="-1"></a><span class="fu">library</span>(GSVA)</span>
+<span id="cb80-19"><a href="#cb80-19" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb80-20"><a href="#cb80-20" tabindex="-1"></a><span class="fu">rownames</span>(exp) <span class="ot">&lt;-</span> exp<span class="sc">$</span>gene</span>
+<span id="cb80-21"><a href="#cb80-21" tabindex="-1"></a>exp<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb80-22"><a href="#cb80-22" tabindex="-1"></a>gsvapar <span class="ot">&lt;-</span> <span class="fu">gsvaParam</span>(<span class="fu">as.matrix</span>(exp), pat)</span>
+<span id="cb80-23"><a href="#cb80-23" tabindex="-1"></a><span class="fu">library</span>(BiocParallel)</span>
+<span id="cb80-24"><a href="#cb80-24" tabindex="-1"></a>bp_param <span class="ot">&lt;-</span> <span class="fu">MulticoreParam</span>(<span class="at">workers =</span> <span class="dv">60</span>)</span>
+<span id="cb80-25"><a href="#cb80-25" tabindex="-1"></a>gsva_res <span class="ot">&lt;-</span> <span class="fu">gsva</span>(gsvapar, <span class="at">BPPARAM =</span> bp_param)</span>
+<span id="cb80-26"><a href="#cb80-26" tabindex="-1"></a><span class="fu">saveRDS</span>(gsva_res,<span class="st">&quot;data/tcga_go_gsva.rds&quot;</span>)</span>
+<span id="cb80-27"><a href="#cb80-27" tabindex="-1"></a></span>
+<span id="cb80-28"><a href="#cb80-28" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb80-29"><a href="#cb80-29" tabindex="-1"></a>kcnk1_exp <span class="ot">&lt;-</span> exp <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gene <span class="sc">==</span> <span class="st">&quot;KCNK1&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb80-30"><a href="#cb80-30" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb80-31"><a href="#cb80-31" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sample =</span> <span class="fu">rownames</span>(.)) <span class="sc">%&gt;%</span></span>
+<span id="cb80-32"><a href="#cb80-32" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exp_type =</span> <span class="fu">case_when</span>(</span>
+<span id="cb80-33"><a href="#cb80-33" tabindex="-1"></a>    exp <span class="sc">&lt;</span> <span class="fu">quantile</span>(exp)[<span class="dv">2</span>] <span class="sc">~</span> <span class="st">&quot;L&quot;</span>,</span>
+<span id="cb80-34"><a href="#cb80-34" tabindex="-1"></a>    exp <span class="sc">&gt;</span> <span class="fu">quantile</span>(exp)[<span class="dv">4</span>] <span class="sc">~</span> <span class="st">&quot;H&quot;</span>,</span>
+<span id="cb80-35"><a href="#cb80-35" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;others&quot;</span></span>
+<span id="cb80-36"><a href="#cb80-36" tabindex="-1"></a>    )) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(exp_type <span class="sc">!=</span> <span class="st">&quot;others&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb80-37"><a href="#cb80-37" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">new_name =</span> <span class="fu">paste0</span>(exp_type,<span class="fu">row_number</span>(.)))</span>
+<span id="cb80-38"><a href="#cb80-38" tabindex="-1"></a></span>
+<span id="cb80-39"><a href="#cb80-39" tabindex="-1"></a>gsva_filter <span class="ot">&lt;-</span> gsva_res <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb80-40"><a href="#cb80-40" tabindex="-1"></a>  <span class="fu">select</span>(kcnk1_exp<span class="sc">$</span>sample)</span>
+<span id="cb80-41"><a href="#cb80-41" tabindex="-1"></a><span class="fu">colnames</span>(gsva_filter) <span class="ot">&lt;-</span> kcnk1_exp<span class="sc">$</span>new_name</span>
+<span id="cb80-42"><a href="#cb80-42" tabindex="-1"></a>gsva_diff <span class="ot">&lt;-</span> <span class="fu">get_diff_bulk</span>(<span class="at">group =</span> <span class="st">&quot;L-H&quot;</span>,<span class="at">df =</span> gsva_filter, <span class="at">n_cores =</span> <span class="dv">60</span>)</span>
+<span id="cb80-43"><a href="#cb80-43" tabindex="-1"></a><span class="fu">saveRDS</span>(gsva_diff,<span class="st">&quot;data/kcnk1_gsva_diff.rds&quot;</span>)</span></code></pre></div>
+<p>Plot the results of GSEA and GSVA in one heatmap:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span>
+<span id="cb81-2"><a href="#cb81-2" tabindex="-1"></a><span class="fu">detach</span>(<span class="st">&quot;package:EnhancedVolcano&quot;</span>, <span class="at">unload =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" tabindex="-1"></a></span>
+<span id="cb81-4"><a href="#cb81-4" tabindex="-1"></a>gsva_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/kcnk1_gsva_diff.rds&quot;</span>)</span>
+<span id="cb81-5"><a href="#cb81-5" tabindex="-1"></a>gsea_res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/kcnk1_gsea_res.rds&quot;</span>)</span>
+<span id="cb81-6"><a href="#cb81-6" tabindex="-1"></a><span class="fu">library</span>(ComplexHeatmap)</span>
+<span id="cb81-7"><a href="#cb81-7" tabindex="-1"></a><span class="fu">library</span>(circlize)</span>
+<span id="cb81-8"><a href="#cb81-8" tabindex="-1"></a></span>
+<span id="cb81-9"><a href="#cb81-9" tabindex="-1"></a>up_pat1 <span class="ot">&lt;-</span> gsva_res <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">abs</span>(diff) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> p_adj <span class="sc">&lt;</span> <span class="fl">0.05</span>) <span class="sc">%&gt;%</span> <span class="fu">filter</span>(per_sig_frac <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb81-10"><a href="#cb81-10" tabindex="-1"></a>up_pat2 <span class="ot">&lt;-</span> gsea_res <span class="sc">%&gt;%</span> <span class="fu">filter</span>(<span class="fu">abs</span>(NES) <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&amp;</span> padj <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb81-11"><a href="#cb81-11" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(up_pat2,up_pat1 <span class="sc">%&gt;%</span> </span>
+<span id="cb81-12"><a href="#cb81-12" tabindex="-1"></a>                   dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">pathway =</span> gene) <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(pathway, diff, p_adj))</span></code></pre></div>
+<pre><code>#&gt; Joining with `by = join_by(pathway)`</code></pre>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> </span>
+<span id="cb83-2"><a href="#cb83-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">gsub</span>(<span class="st">&quot;_.+&quot;</span>,<span class="st">&quot;&quot;</span>,pathway) <span class="sc">%&gt;%</span> <span class="fu">gsub</span>(<span class="st">&quot;GO&quot;</span>,<span class="st">&quot;&quot;</span>,.))</span>
+<span id="cb83-3"><a href="#cb83-3" tabindex="-1"></a></span>
+<span id="cb83-4"><a href="#cb83-4" tabindex="-1"></a>dt1 <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(pathway,NES) <span class="sc">%&gt;%</span> </span>
+<span id="cb83-5"><a href="#cb83-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sim_name =</span> <span class="fu">gsub</span>(<span class="st">&quot;GO[A-Z][A-Z]_&quot;</span>,<span class="st">&quot;&quot;</span>,pathway)) <span class="sc">%&gt;%</span> </span>
+<span id="cb83-6"><a href="#cb83-6" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>pathway) <span class="sc">%&gt;%</span> </span>
+<span id="cb83-7"><a href="#cb83-7" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb83-8"><a href="#cb83-8" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sim_name =</span> stringr<span class="sc">::</span><span class="fu">str_to_sentence</span>(<span class="fu">gsub</span>(<span class="st">&quot;_&quot;</span>,<span class="st">&quot; &quot;</span>,sim_name))) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb83-9"><a href="#cb83-9" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb83-10"><a href="#cb83-10" tabindex="-1"></a><span class="fu">rownames</span>(dt1) <span class="ot">&lt;-</span> dt1<span class="sc">$</span>sim_name</span>
+<span id="cb83-11"><a href="#cb83-11" tabindex="-1"></a>dt1<span class="sc">$</span>sim_name <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb83-12"><a href="#cb83-12" tabindex="-1"></a>col_fun <span class="ot">&lt;-</span> <span class="fu">colorRamp2</span>(<span class="fu">quantile</span>(dt1<span class="sc">$</span>NES),<span class="fu">c</span>(<span class="st">&quot;#F7F7E9&quot;</span>,<span class="st">&quot;#F3E1AF&quot;</span>,<span class="st">&quot;#DBBF92&quot;</span>,<span class="st">&quot;#D78851&quot;</span>,<span class="st">&quot;#BE5C37&quot;</span>))</span>
+<span id="cb83-13"><a href="#cb83-13" tabindex="-1"></a>go_col <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">BP =</span> <span class="st">&quot;red&quot;</span>, <span class="at">CC =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">MF =</span> <span class="st">&quot;green&quot;</span>)</span>
+<span id="cb83-14"><a href="#cb83-14" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">Heatmap</span>(dt1,<span class="at">cluster_rows =</span> F,<span class="at">cluster_columns =</span> F, <span class="at">row_names_side =</span> <span class="st">&quot;left&quot;</span>,</span>
+<span id="cb83-15"><a href="#cb83-15" tabindex="-1"></a>              <span class="at">row_names_max_width =</span> <span class="fu">max_text_width</span>(</span>
+<span id="cb83-16"><a href="#cb83-16" tabindex="-1"></a>                <span class="fu">rownames</span>(dt1)</span>
+<span id="cb83-17"><a href="#cb83-17" tabindex="-1"></a>              ),<span class="at">name =</span> <span class="st">&quot;GSEA NES&quot;</span>,<span class="at">col =</span> col_fun, <span class="at">show_column_names =</span> F,</span>
+<span id="cb83-18"><a href="#cb83-18" tabindex="-1"></a>              <span class="at">row_split =</span> dt<span class="sc">$</span>type,</span>
+<span id="cb83-19"><a href="#cb83-19" tabindex="-1"></a>              <span class="at">row_names_gp =</span> <span class="fu">gpar</span>(<span class="at">col =</span> go_col),</span>
+<span id="cb83-20"><a href="#cb83-20" tabindex="-1"></a>              <span class="at">border =</span> T,</span>
+<span id="cb83-21"><a href="#cb83-21" tabindex="-1"></a>              <span class="at">rect_gp =</span> <span class="fu">gpar</span>(<span class="at">col=</span><span class="st">&quot;white&quot;</span>,<span class="at">lwd=</span><span class="dv">2</span>))</span></code></pre></div>
+<pre><code>#&gt; Warning: The input is a data frame-like object, convert it to a matrix.</code></pre>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" tabindex="-1"></a>dt2 <span class="ot">&lt;-</span> dt <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">select</span>(pathway,diff) <span class="sc">%&gt;%</span> </span>
+<span id="cb85-2"><a href="#cb85-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sim_name =</span> <span class="fu">gsub</span>(<span class="st">&quot;GO[A-Z][A-Z]_&quot;</span>,<span class="st">&quot;&quot;</span>,pathway)) <span class="sc">%&gt;%</span> </span>
+<span id="cb85-3"><a href="#cb85-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>pathway) <span class="sc">%&gt;%</span> </span>
+<span id="cb85-4"><a href="#cb85-4" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb85-5"><a href="#cb85-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sim_name =</span> stringr<span class="sc">::</span><span class="fu">str_to_sentence</span>(<span class="fu">gsub</span>(<span class="st">&quot;_&quot;</span>,<span class="st">&quot; &quot;</span>,sim_name))) <span class="sc">%&gt;%</span> <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb85-6"><a href="#cb85-6" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb85-7"><a href="#cb85-7" tabindex="-1"></a><span class="fu">rownames</span>(dt2) <span class="ot">&lt;-</span> dt2<span class="sc">$</span>sim_name</span>
+<span id="cb85-8"><a href="#cb85-8" tabindex="-1"></a>dt2<span class="sc">$</span>sim_name <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb85-9"><a href="#cb85-9" tabindex="-1"></a>col_fun2 <span class="ot">&lt;-</span> <span class="fu">colorRamp2</span>(<span class="fu">quantile</span>(dt2<span class="sc">$</span>diff),<span class="fu">c</span>(<span class="st">&quot;#FBF9FA&quot;</span>,<span class="st">&quot;#DEDCEA&quot;</span>,<span class="st">&quot;#AFB7D7&quot;</span>,<span class="st">&quot;#8197C6&quot;</span>,<span class="st">&quot;#507AAF&quot;</span>))</span>
+<span id="cb85-10"><a href="#cb85-10" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">Heatmap</span>(dt2, <span class="at">cluster_rows =</span> F, <span class="at">cluster_columns =</span> F, <span class="at">show_row_names =</span> F,</span>
+<span id="cb85-11"><a href="#cb85-11" tabindex="-1"></a>              <span class="at">name =</span> <span class="st">&quot;GSVA Difference&quot;</span>,<span class="at">col =</span> col_fun2, <span class="at">show_column_names =</span> F,</span>
+<span id="cb85-12"><a href="#cb85-12" tabindex="-1"></a>              <span class="at">border =</span> T,<span class="at">rect_gp =</span> <span class="fu">gpar</span>(<span class="at">col=</span><span class="st">&quot;white&quot;</span>,<span class="at">lwd=</span><span class="dv">2</span>))</span></code></pre></div>
+<pre><code>#&gt; Warning: The input is a data frame-like object, convert it to a matrix.</code></pre>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> p1 <span class="sc">+</span> p2</span>
+<span id="cb87-2"><a href="#cb87-2" tabindex="-1"></a>p3</span></code></pre></div>
+<p><img src="report_main_files/figure-html/vol-1.png" width="2400" /></p>
+<p>We then calculated the expression correlations between other genes
+and KCNK1, performed GSEA analysis based on the correlations, and
+visualized the results using the aPEAR package.</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" tabindex="-1"></a>exp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/tcga_brca_filter_exp.rds&quot;</span>)</span>
+<span id="cb88-2"><a href="#cb88-2" tabindex="-1"></a><span class="fu">rownames</span>(exp) <span class="ot">&lt;-</span> exp<span class="sc">$</span>gene</span>
+<span id="cb88-3"><a href="#cb88-3" tabindex="-1"></a>exp<span class="sc">$</span>gene <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb88-4"><a href="#cb88-4" tabindex="-1"></a>dt <span class="ot">&lt;-</span> exp[<span class="st">&quot;KCNK1&quot;</span>,] <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">exp =</span> <span class="dv">1</span>)</span>
+<span id="cb88-5"><a href="#cb88-5" tabindex="-1"></a>all_sd <span class="ot">&lt;-</span> <span class="fu">apply</span>(exp,<span class="dv">1</span>,sd)</span>
+<span id="cb88-6"><a href="#cb88-6" tabindex="-1"></a>all_sd <span class="ot">&lt;-</span> all_sd[all_sd <span class="sc">&gt;</span> <span class="fl">0.5</span>] <span class="sc">%&gt;%</span> <span class="fu">names</span>()</span>
+<span id="cb88-7"><a href="#cb88-7" tabindex="-1"></a></span>
+<span id="cb88-8"><a href="#cb88-8" tabindex="-1"></a><span class="fu">library</span>(doParallel)</span>
+<span id="cb88-9"><a href="#cb88-9" tabindex="-1"></a><span class="fu">library</span>(foreach)</span>
+<span id="cb88-10"><a href="#cb88-10" tabindex="-1"></a><span class="co">#create the cluster</span></span>
+<span id="cb88-11"><a href="#cb88-11" tabindex="-1"></a>my.cluster <span class="ot">&lt;-</span> parallel<span class="sc">::</span><span class="fu">makeCluster</span>(</span>
+<span id="cb88-12"><a href="#cb88-12" tabindex="-1"></a>  <span class="dv">50</span>, </span>
+<span id="cb88-13"><a href="#cb88-13" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;PSOCK&quot;</span></span>
+<span id="cb88-14"><a href="#cb88-14" tabindex="-1"></a>)</span>
+<span id="cb88-15"><a href="#cb88-15" tabindex="-1"></a><span class="co">#register it to be used by %dopar%</span></span>
+<span id="cb88-16"><a href="#cb88-16" tabindex="-1"></a>doParallel<span class="sc">::</span><span class="fu">registerDoParallel</span>(<span class="at">cl =</span> my.cluster)</span>
+<span id="cb88-17"><a href="#cb88-17" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">foreach</span>(</span>
+<span id="cb88-18"><a href="#cb88-18" tabindex="-1"></a>  <span class="at">i =</span> all_sd,</span>
+<span id="cb88-19"><a href="#cb88-19" tabindex="-1"></a>  <span class="at">.export =</span> <span class="fu">c</span>(<span class="st">&quot;exp&quot;</span>,<span class="st">&quot;dt&quot;</span>),</span>
+<span id="cb88-20"><a href="#cb88-20" tabindex="-1"></a>  <span class="at">.packages =</span> <span class="st">&quot;dplyr&quot;</span></span>
+<span id="cb88-21"><a href="#cb88-21" tabindex="-1"></a>) <span class="sc">%dopar%</span> {</span>
+<span id="cb88-22"><a href="#cb88-22" tabindex="-1"></a>  tmp_dt <span class="ot">&lt;-</span> exp[i,] <span class="sc">%&gt;%</span> <span class="fu">t</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> <span class="fu">rename</span>(<span class="at">exp_a =</span> <span class="dv">1</span>)</span>
+<span id="cb88-23"><a href="#cb88-23" tabindex="-1"></a>  tmp_res <span class="ot">&lt;-</span> <span class="fu">cor.test</span>(tmp_dt<span class="sc">$</span>exp_a, dt<span class="sc">$</span>exp, <span class="at">method =</span> <span class="st">&quot;sp&quot;</span>)</span>
+<span id="cb88-24"><a href="#cb88-24" tabindex="-1"></a>  <span class="fu">return</span>(</span>
+<span id="cb88-25"><a href="#cb88-25" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb88-26"><a href="#cb88-26" tabindex="-1"></a>      <span class="at">gene =</span> i,</span>
+<span id="cb88-27"><a href="#cb88-27" tabindex="-1"></a>      <span class="at">cor =</span> tmp_res<span class="sc">$</span>estimate[[<span class="dv">1</span>]],</span>
+<span id="cb88-28"><a href="#cb88-28" tabindex="-1"></a>      <span class="at">p_value =</span> tmp_res<span class="sc">$</span>p.value</span>
+<span id="cb88-29"><a href="#cb88-29" tabindex="-1"></a>    )</span>
+<span id="cb88-30"><a href="#cb88-30" tabindex="-1"></a>  )</span>
+<span id="cb88-31"><a href="#cb88-31" tabindex="-1"></a>}</span>
+<span id="cb88-32"><a href="#cb88-32" tabindex="-1"></a>parallel<span class="sc">::</span><span class="fu">stopCluster</span>(<span class="at">cl =</span> my.cluster)</span>
+<span id="cb88-33"><a href="#cb88-33" tabindex="-1"></a></span>
+<span id="cb88-34"><a href="#cb88-34" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(res)</span>
+<span id="cb88-35"><a href="#cb88-35" tabindex="-1"></a>res <span class="ot">&lt;-</span> res <span class="sc">%&gt;%</span> <span class="fu">filter</span>(gene <span class="sc">!=</span> <span class="st">&quot;KCNK1&quot;</span>)</span>
+<span id="cb88-36"><a href="#cb88-36" tabindex="-1"></a>res<span class="sc">$</span>padj <span class="ot">&lt;-</span> <span class="fu">p.adjust</span>(res<span class="sc">$</span>p_value,<span class="st">&quot;fdr&quot;</span>)</span>
+<span id="cb88-37"><a href="#cb88-37" tabindex="-1"></a><span class="fu">saveRDS</span>(res,<span class="st">&quot;data/exp_cor.rds&quot;</span>)</span>
+<span id="cb88-38"><a href="#cb88-38" tabindex="-1"></a></span>
+<span id="cb88-39"><a href="#cb88-39" tabindex="-1"></a><span class="do">###GSEA</span></span>
+<span id="cb88-40"><a href="#cb88-40" tabindex="-1"></a>res <span class="ot">&lt;-</span> res <span class="sc">%&gt;%</span> </span>
+<span id="cb88-41"><a href="#cb88-41" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stats =</span> cor <span class="sc">*</span> (<span class="sc">-</span><span class="fu">log10</span>(p_value)))</span>
+<span id="cb88-42"><a href="#cb88-42" tabindex="-1"></a>stats <span class="ot">&lt;-</span> res<span class="sc">$</span>stats</span>
+<span id="cb88-43"><a href="#cb88-43" tabindex="-1"></a><span class="fu">names</span>(stats) <span class="ot">&lt;-</span> res<span class="sc">$</span>gene</span>
+<span id="cb88-44"><a href="#cb88-44" tabindex="-1"></a></span>
+<span id="cb88-45"><a href="#cb88-45" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span>
+<span id="cb88-46"><a href="#cb88-46" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb88-47"><a href="#cb88-47" tabindex="-1"></a><span class="fu">library</span>(DOSE)</span>
+<span id="cb88-48"><a href="#cb88-48" tabindex="-1"></a>geneList <span class="ot">&lt;-</span> <span class="fu">sort</span>(stats, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb88-49"><a href="#cb88-49" tabindex="-1"></a>enrich <span class="ot">&lt;-</span> <span class="fu">gseGO</span>(geneList, <span class="at">OrgDb =</span> org.Hs.eg.db, <span class="at">ont =</span> <span class="st">&#39;ALL&#39;</span>, <span class="at">keyType =</span> <span class="st">&quot;SYMBOL&quot;</span>)</span>
+<span id="cb88-50"><a href="#cb88-50" tabindex="-1"></a><span class="fu">saveRDS</span>(enrich,<span class="st">&quot;data/cor_gsea_clusterprofile.rds&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" tabindex="-1"></a><span class="fu">library</span>(aPEAR)</span>
+<span id="cb89-2"><a href="#cb89-2" tabindex="-1"></a><span class="fu">library</span>(clusterProfiler)</span>
+<span id="cb89-3"><a href="#cb89-3" tabindex="-1"></a><span class="fu">library</span>(org.Hs.eg.db)</span>
+<span id="cb89-4"><a href="#cb89-4" tabindex="-1"></a><span class="fu">library</span>(DOSE)</span></code></pre></div>
+<pre><code>#&gt; DOSE v3.30.1  For help: https://yulab-smu.top/biomedical-knowledge-mining-book/
+#&gt; 
+#&gt; If you use DOSE in published research, please cite:
+#&gt; Guangchuang Yu, Li-Gen Wang, Guang-Rong Yan, Qing-Yu He. DOSE: an R/Bioconductor package for Disease Ontology Semantic and Enrichment analysis. Bioinformatics 2015, 31(4):608-609</code></pre>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" tabindex="-1"></a>enrich <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;~/Breast_cancer_dev/data/cor_gsea_clusterprofile.rds&quot;</span>)</span>
+<span id="cb91-2"><a href="#cb91-2" tabindex="-1"></a><span class="fu">enrichmentNetwork</span>(enrich<span class="sc">@</span>result, </span>
+<span id="cb91-3"><a href="#cb91-3" tabindex="-1"></a>                  <span class="at">drawEllipses =</span> <span class="cn">TRUE</span>, <span class="at">repelLabels=</span><span class="cn">TRUE</span>, <span class="at">fontSize =</span> <span class="dv">4</span>,</span>
+<span id="cb91-4"><a href="#cb91-4" tabindex="-1"></a>                  <span class="at">colorBy =</span> <span class="st">&quot;p.adjust&quot;</span>, <span class="at">colorType=</span><span class="st">&quot;pval&quot;</span>,</span>
+<span id="cb91-5"><a href="#cb91-5" tabindex="-1"></a>                  <span class="at">simMethod =</span> <span class="st">&quot;cosine&quot;</span>, <span class="at">clustMethod =</span> <span class="st">&quot;hier&quot;</span>,</span>
+<span id="cb91-6"><a href="#cb91-6" tabindex="-1"></a>                  <span class="at">clustNameMethod =</span> <span class="st">&quot;hits&quot;</span>)</span></code></pre></div>
+<pre><code>#&gt; Warning in geom_point(data = coordinates, aes(x = x, y = y, ID = ID, color =
+#&gt; color, : Ignoring unknown aesthetics: ID, Cluster, and Cluster size</code></pre>
+<pre><code>#&gt; Warning: ggrepel: 2 unlabeled data points (too many overlaps). Consider
+#&gt; increasing max.overlaps</code></pre>
+<p><img src="report_main_files/figure-html/unnamed-chunk-30-1.png" width="2400" /></p>
+</div>
+</div>
+
+   
+   
+            
+      
+
+  <script>
+    $(document).ready(function () {
+
+			
+ 		
+	    });
+  </script>
+
+
+
+    <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+	var script = document.createElement("script");
+	script.type = "text/javascript";
+	script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+	document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+  
+</body>
+</html>

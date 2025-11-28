@@ -1,0 +1,1204 @@
+library(dplyr)
+library(doParallel)
+library(foreach)
+# library(IOBR)
+# counts <- readRDS("data/exp_counts.rds") %>% as.data.frame()
+# rownames(counts) <- counts$Gene_ID
+# counts$Gene_ID <- NULL
+# counts <- as.matrix(counts)
+# tpm <- count2tpm(countMat = counts, source = "local", idType = "Ensembl")
+# saveRDS(tpm,file = "data/exp_tpm.rds")
+tpm <- readRDS("data/exp_tpm.rds")
+##差异基因
+get_diff <- function(gene, df, control_group, permute=FALSE){
+  tmp_dt <- df[gene,] %>% t() %>% as.data.frame(check.names = FALSE) %>% 
+    rename(exp = 1)
+  tmp_dt$sample <- rownames(tmp_dt)
+  tmp_dt <- tmp_dt %>% 
+    mutate(type = ifelse(substr(sample,1,1) == control_group,"con","treat"))
+  if (permute){
+    tmp_dt$type <- sample(tmp_dt$type, replace = FALSE)
+  }
+  tmp_test <- wilcox.test(exp ~ type, data = tmp_dt)
+  tmp_res <- data.frame(
+    diff = median(tmp_dt$exp[tmp_dt$type == "treat"]) - median(tmp_dt$exp[tmp_dt$type == "con"]),
+    fc = median(tmp_dt$exp[tmp_dt$type == "treat"]) / (median(tmp_dt$exp[tmp_dt$type == "con"]) + 0.01),
+    p_value = tmp_test$p.value,
+    gene = tmp_gene
+  )
+  if (permute){
+    tmp_res <- tmp_test$p.value
+  }
+  return(tmp_res)
+}
+
+get_diff_bulk <- function(group, df, n_cores){
+  ##group: like A-B, control in first
+  ##df: expression in TPM
+  groups <- strsplit(group,"-")[[1]]
+  dt <- df %>% 
+    select(starts_with(groups[1]) | starts_with(groups[2]))
+  all_genes <- rownames(dt)
+  #create the cluster
+  my.cluster <- parallel::makeCluster(
+    n_cores, 
+    type = "PSOCK"
+  )
+  #register it to be used by %dopar%
+  doParallel::registerDoParallel(cl = my.cluster)
+  
+  res <- foreach(
+    i = all_genes,
+    .export = c("get_diff","dt","groups"),
+    .packages = "dplyr"
+  ) %dopar% {
+    tmp_gene <- i
+    ##
+    tmp_res <- get_diff(gene = tmp_gene, df = dt, control_group = groups[1])
+    ##permutate
+    per_tmp_res <- sapply(1:100,
+                          function(x){
+                            get_diff(gene = tmp_gene, df = dt, 
+                                     control_group = groups[1], permute = TRUE)
+                          })
+    per_tmp_res_adj_p <- p.adjust(per_tmp_res,"fdr")
+    tmp_res$per_sig_frac <- mean(per_tmp_res_adj_p < 0.05)
+    return(tmp_res)
+  }
+  parallel::stopCluster(cl = my.cluster)
+  res <- bind_rows(res)
+  res$p_adj <- p.adjust(res$p_value,"fdr")
+  res$groups <- group
+  return(res)
+}
+
+combinations <- combn(c("A","B","C","D","E","F"), 
+                      2, FUN = function(x) paste(x, collapse = "-")) 
+
+all_res <- vector("list",length = length(combinations))
+for (i in seq_along(combinations)){
+  tmp <- get_diff_bulk(group = combinations[i], df = tpm, n_cores = 100)
+  all_res[[i]] <- tmp
+  message("Complete ",combinations[i])
+}
+all_res <- bind_rows(all_res)
+saveRDS(all_res,"data/final_data/diff_all_exp.rds")
+
+all_res <- all_res %>% 
+  filter(!is.nan(p_value)) %>% 
+  mutate(log2fc = log2(fc + 0.01))
+sig_diff <- all_res %>% filter((p_value < 0.05) & (per_sig_frac == 0)) %>% 
+  mutate(change = as.factor(ifelse(fc > 1,"up","down"))) %>% 
+  mutate(label = ifelse(p_adj < 0.05,"adjust P-val<0.05","adjust P-val >= 0.05"))
+TopGene <- 
+  sig_diff %>% 
+  group_by(groups) %>% 
+  distinct(gene, .keep_all = T) %>% 
+  top_n(10, log2fc)
+label_gene <- TopGene %>% filter(p_adj < 0.05)
+dbar <- 
+  sig_diff %>% 
+  group_by(groups) %>% 
+  summarise(logfc_min = min(log2fc), logfc_max = max(log2fc), diff_gene = sum(p_adj < 0.05)) %>% 
+  mutate(label = "adjust P-val >= 0.05") %>% ungroup()
+
+library(ggplot2)
+library(ggsci)
+library(ggrepel)
+# 直接出图
+ggplot()+
+  geom_col(data = dbar,  # 绘制负向背景柱状图
+           mapping = aes(x = groups,y = logfc_min),
+           fill = "#dcdcdc",alpha = 0.6, width = 0.7) +
+  geom_col(data = dbar, # 绘制正向背景柱状图
+           mapping = aes(x = groups,y = logfc_max),
+           fill = "#dcdcdc",alpha = 0.6, width = 0.7) +
+  geom_jitter(data = sig_diff, # 绘制所有数据点
+              aes(x = groups, y = log2fc, color = label),
+              size = 0.85,
+              width =0.3) +
+  geom_jitter(data = TopGene, # 绘制top10数据点
+              aes(x = groups, y = log2fc, color = label),
+              size = 1,
+              width =0.35) +
+  geom_tile(data = TopGene, # 绘制中心分组标记图
+            aes(x = groups,
+                y = 0,
+                fill = groups),
+            height=1.5,
+            color = "black",
+            alpha = 0.6,
+            show.legend = F) +
+  ggsci::scale_fill_d3(palette = "category20") + # 自定义颜色
+  ggsci::scale_color_d3(palette = "category20") + # 自定义颜色
+  geom_text_repel(data = label_gene,  # 这里的filter很关键，筛选你想要标记的基因
+                  aes(x = groups, y = log2fc, label = gene),
+                  size = 2, 
+                  max.overlaps = getOption("ggrepel.max.overlaps", default = 30),
+                  color = 'black',
+                  force = 1.2,
+                  arrow = arrow(length = unit(0.008, "npc"),
+                                type = "open", ends = "last")) +
+  labs(x="Groups", y="logFC") +
+  geom_text(data=TopGene, # 绘制中心分组标记图文本注释
+            aes(x=groups, 
+                y=0, 
+                label=groups),
+            size = 3,
+            color ="white") +
+  theme_minimal() + 
+  theme(axis.title = element_text(size = 13,color = "black",face = "bold"),
+        axis.line.y = element_line(color = "black",size = 1.2),
+        axis.line.x = element_blank(),
+        axis.text.x = element_blank(),
+        panel.grid = element_blank(),
+        legend.position = "top",
+        legend.direction = "vertical",
+        legend.justification = c(1,0),
+        legend.text = element_text(size = 13))+
+  annotate("text", x = dbar$groups, y = -7, 
+           label = paste0("N=", dbar$diff_gene))
+ggsave("figs/final_figs/diff_gene_exp_all_groups.pdf",width = 12,height = 8)
+
+####tsne
+library(dplyr)
+library(ggplot2)
+library(Rtsne)
+exp_tpm <- readRDS("data/exp_tpm.rds")
+exp_filt <- BioNERO::remove_nonexp(exp_tpm, method = "median", min_exp = 5)
+exp_filt <- BioNERO::filter_by_variance(exp_filt, n = 2000)
+tsne_results <- Rtsne(t(exp_filt), dims = 2, 
+                      perplexity = 30, verbose = TRUE, max_iter = 5000, eta = 100,
+                      theta = 0)
+tsne_df <- data.frame(
+  X = tsne_results$Y[, 1],
+  Y = tsne_results$Y[, 2],
+  sample = colnames(exp_filt)
+) %>% mutate(type = substr(sample,1,1)) %>% 
+  mutate(type2 = case_when(
+    type %in% c('A','B') ~ "I (A,B)",
+    type %in% c("C") ~ "II (C)",
+    type %in% c("D","E") ~ "III (D,E)",
+    TRUE ~ "IV (F)"
+  ))
+colors <- c("#A64036","#F0C2A2","#4182A4","#594C57","#DB9C5E","#E2A2AC")
+ggplot(tsne_df, aes(x = X, y = Y, color = factor(type2))) +
+  geom_point(size = 3)+
+  stat_ellipse(
+    data = subset(tsne_df, type2 %in% c("I (A,B)","III (D,E)")),  # 只选择特定点
+    aes(x = X, y = Y, color = factor(type2))
+  )+
+  theme_minimal()
+ggsave("figs/final_figs/exp_sample_tsne.pdf",width = 8,height = 6)
+
+########
+counts <- readRDS("data/exp_counts.rds") %>% as.data.frame()
+rownames(counts) <- counts$Gene_ID
+counts$Gene_ID <- NULL
+counts <- t(counts) %>% as.data.frame()
+write.csv(counts,"data/brca_bulkformer_input.csv",quote = F)
+emb <- data.table::fread("~/BulkFormer/BulkFormer/data/brca_res.csv",data.table = F,
+                         header = T)
+emb$V1 <- NULL
+rownames(emb) <- rownames(counts)
+colnames(emb) <- paste0("Emb_",colnames(emb))
+
+tsne_results <- Rtsne(emb, dims = 2, 
+                      perplexity = 30, verbose = TRUE, max_iter = 5000, eta = 100,
+                      theta = 0)
+tsne_df <- data.frame(
+  X = tsne_results$Y[, 1],
+  Y = tsne_results$Y[, 2],
+  sample = rownames(emb)
+) %>% mutate(type = substr(sample,1,1)) %>% 
+  mutate(type2 = case_when(
+    type %in% c('A','B') ~ "I (A,B)",
+    type %in% c("C") ~ "II (C)",
+    type %in% c("D","E") ~ "III (D,E)",
+    TRUE ~ "IV (F)"
+  )) %>% 
+  mutate(type3 = case_when(
+    (type2 == "IV (F)") & (!(sample %in% c("F5","F18","F12","F19"))) ~ "IV (F)",
+    type %in% c('A','B') ~ "I (A,B)",
+    type %in% c("C") ~ "II (C)",
+    type %in% c("D","E") ~ "III (D,E)",
+    TRUE ~ "others"
+  ))
+colors <- c("#A64036","#F0C2A2","#4182A4","#594C57","#DB9C5E","#E2A2AC")
+ggplot(tsne_df, aes(x = X, y = Y, color = factor(type2))) +
+  geom_point(size = 3)+
+  stat_ellipse(
+    data = subset(tsne_df, (type3 != "others") & (type3 != "II (C)")),  # 只选择特定点
+    aes(x = X, y = Y, color = factor(type3))
+  )+
+  theme_minimal()
+ggsave("figs/final_figs/exp_sample_tsne_bulkformer.pdf",width = 8,height = 6)
+
+###########
+library(dplyr)
+diff_all_exp <- readRDS("~/brca/data/final_data/diff_all_exp.rds")
+sig_diff <- diff_all_exp %>% filter(p_adj < 0.05 & per_sig_frac == 0) %>% 
+  mutate(log2fc = log2(fc + 0.01))
+sig_top <- sig_diff %>% 
+  group_by(groups) %>%
+  slice_max(order_by = fc, n=100) %>% 
+  ungroup()
+
+dt <- tpm[unique(sig_top$gene),] %>% as.matrix()
+dt <- log2(dt+1)
+dt_z <- t(scale(t(dt)))
+
+library(ComplexHeatmap)
+# 创建样本分组信息
+sample_groups <- factor(substr(colnames(dt_z),1,1))
+names(sample_groups) <- colnames(dt_z)
+ha <- HeatmapAnnotation(
+  Group = sample_groups,
+  col = list(Group = c("A" = "#333C42", "B" = "#316658", "C" = "#5EA69C",
+                       "D" = "#C2CFA2", "E" = "#A4799E", "F" = "#706690"))
+)
+set.seed(20251121)
+p <- Heatmap(dt_z, show_row_names = F, show_row_dend = F, top_annotation = ha,
+        column_km = 3, name = "Scaled TPM", cluster_column_slices = FALSE)
+pdf("figs/final_figs/exp_heatmap.pdf", width = 18, height = 8)
+draw(p)
+dev.off()
+
+#############通路分析
+diff_all_exp <- readRDS("data/final_data/diff_all_exp.rds")
+
+dt <- diff_all_exp %>% filter(!is.nan(p_value)) %>% 
+  mutate(logfc = log2(fc + 0.001)) %>% 
+  mutate(stat = logfc * (-log10(p_value)))
+library(fgsea)
+pat <- gmtPathways("~/melanoma/data/h.all.v2024.1.Hs.symbols.gmt")
+
+all_com <- unique(dt$groups)
+for (i in 1:length(all_com)){
+  df <- dt %>% filter(groups == all_com[i])
+  ranking <- df$stat
+  names(ranking) <- df$gene
+  tmp_res <- fgsea(pat, ranking, minSize=15, maxSize=500, nPermSimple = 10000)
+}
+
+##########gsva
+library(GSVA)
+tpm <- readRDS("data/exp_tpm.rds")
+tpm <- log2(as.matrix(tpm) + 1)
+pat <- fgsea::gmtPathways("~/melanoma/data/h.all.v2024.1.Hs.symbols.gmt")
+gsvaPar <- gsvaParam(tpm, pat)
+gsva.es <- gsva(gsvaPar, verbose=TRUE)
+saveRDS(gsva.es,"data/final_data/gsva_res.rds")
+
+###
+gsea_res <- readRDS("data/final_data/gsva_res.rds") %>% as.data.frame()
+combinations <- combn(c("A","B","C","D","E","F"), 
+                      2, FUN = function(x) paste(x, collapse = "-")) 
+
+all_res <- vector("list",length = length(combinations))
+for (i in seq_along(combinations)){
+  tmp <- get_diff_bulk(group = combinations[i], df = gsea_res, n_cores = 50)
+  all_res[[i]] <- tmp
+  message("Complete ",combinations[i])
+}
+all_res <- bind_rows(all_res)
+saveRDS(all_res,"data/final_data/diff_gsva.rds")
+
+##plot
+dt_v <- all_res %>% 
+  select(groups, gene, diff) %>% 
+  tidyr::pivot_wider(names_from = groups, values_from = diff) %>% as.data.frame()
+rownames(dt_v) <- dt_v$gene
+dt_v$gene <- NULL
+dt_p <- all_res %>% 
+  select(groups, gene, p_adj) %>% 
+  tidyr::pivot_wider(names_from = groups, values_from = p_adj) %>% as.data.frame()
+rownames(dt_p) <- dt_p$gene
+dt_p$gene <- NULL
+
+dt_v <- as.matrix(dt_v)
+dt_p <- as.matrix(dt_p)
+dt_v <- ifelse(dt_p < 0.05, dt_v, NA)
+library(ComplexHeatmap)
+rownames(dt_v) <- gsub("HALLMARK_","",rownames(dt_v))
+p <- Heatmap(dt_v,cluster_rows = F,cluster_columns = F, row_names_side = "left",
+        na_col = "white", border=T, rect_gp = gpar(col = "white", lwd = 2),
+        name = "ES Difference", row_names_max_width = max_text_width(
+          rownames(dt_v), 
+          gp = gpar(fontsize = 12)
+        ))
+p
+pdf("figs/final_figs/gsva_diff_heatmap.pdf", width = 9, height = 9)
+draw(p)
+dev.off()
+
+###############immune cell
+library(dplyr)
+# .libPaths(c("/data/sdd/wt/miniconda3/envs/deconvolution/lib/R/library/",
+#             "/home/wt/R/x86_64-pc-linux-gnu-library/4.2",
+#             "/data/sdd/wt/miniconda3/envs/R_pack/lib/R/library/"))
+library(immunedeconv)
+tpm <- readRDS("data/exp_tpm.rds")
+dt <- tpm
+dt$genes <- rownames(dt)
+dt <- dt %>% select(genes,everything())
+write.table(dt,"data/cibersort_input.txt",quote = F,row.names = F,sep = "\t")
+
+est <- deconvolute_estimate(tpm)
+est$cell_type <- paste0("estimate~",rownames(est))
+est <- est %>% select(cell_type,everything())
+
+t1 <- deconvolute(tpm, "quantiseq")t1 <- decoestnvolute(tpm, "quantiseq")
+t2 <- deconvolute(tpm, "timer",indications=rep("BRCA",ncol(tpm)))
+t3 <- deconvolute(tpm, "consensus_tme",indications=rep("BRCA",ncol(tpm))) 
+t4 <- deconvolute(tpm, "mcp_counter")
+t5 <- xCell::xCellAnalysis(tpm)
+t5 <- as.data.frame(t5)
+t5$cell_type <- rownames(t5)
+t5 <- t5 %>% select(cell_type,everything())
+t6 <- deconvolute(tpm, "epic")
+t7 <- deconvolute(tpm, "abis")
+
+all_immune <- bind_rows(
+  est,
+  t1 %>% mutate(cell_type = paste0("quantiseq~",cell_type)),
+  t2 %>% mutate(cell_type = paste0("timer~",cell_type)),
+  t3 %>% mutate(cell_type = paste0("consensus_tme~",cell_type)),
+  t4 %>% mutate(cell_type = paste0("mcp_counter~",cell_type)),
+  t5 %>% mutate(cell_type = paste0("xCell~",cell_type)),
+  t6 %>% mutate(cell_type = paste0("epic~",cell_type)),
+  t7 %>% mutate(cell_type = paste0("abis~",cell_type)),
+)
+rownames(all_immune) <- 1:nrow(all_immune)
+###cibersort
+cibersort <- data.table::fread("data/cibersort_res.txt",data.table = F)
+cibersort <- cibersort %>% select(-c(24,25,26))
+rownames(cibersort) <- cibersort$Mixture
+cibersort$Mixture <- NULL
+cibersort <- as.data.frame(t(cibersort))
+cibersort$cell_type <- rownames(cibersort)
+cibersort <- cibersort %>% select(cell_type, everything()) %>% 
+  mutate(cell_type = paste0("cibersort~",cell_type))
+
+cibersort_abs <- data.table::fread("data/cibersort_res_absolute.txt",data.table = F)
+cibersort_abs <- cibersort_abs %>% select(-c(24,25,26,27))
+rownames(cibersort_abs) <- cibersort_abs$Mixture
+cibersort_abs$Mixture <- NULL
+cibersort_abs <- as.data.frame(t(cibersort_abs))
+cibersort_abs$cell_type <- rownames(cibersort_abs)
+cibersort_abs <- cibersort_abs %>% select(cell_type, everything()) %>% 
+  mutate(cell_type = paste0("cibersort_abs~",cell_type))
+
+all_immune <- bind_rows(
+  all_immune,
+  cibersort,
+  cibersort_abs
+)
+rownames(all_immune) <- 1:nrow(all_immune)
+saveRDS(all_immune, "data/all_immune_8.rds")
+####
+dt <- all_immune %>% filter(grepl("cibersort_abs",cell_type))
+rownames(dt) <- dt$cell_type
+dt$cell_type <- NULL
+dt <- t(dt) %>% as.data.frame()
+dt$sample <- rownames(dt)
+colnames(dt) <- gsub("cibersort_abs~","",colnames(dt))
+dt <- dt %>% 
+  mutate(`B cells` = `B cells naive` + `B cells memory`,
+         `T cells CD4` = `T cells CD4 naive` + `T cells CD4 memory resting` + `T cells CD4 memory activated`,
+         `NK cells` = `NK cells resting` + `NK cells activated`) %>% 
+  select(`B cells`, `T cells CD4`, `T cells CD8`, `NK cells`, `Macrophages M1`,
+         `Macrophages M2`, sample)
+dt <- dt %>% 
+  mutate(groups = substr(sample,1,1)) %>% 
+  select(sample, groups, everything()) %>% 
+  tidyr::pivot_longer(cols = 3:ncol(.), 
+                      names_to = "cell_type", values_to = "Score")
+library(ggpubr)
+ggboxplot(dt,x="cell_type",y="Score",fill = "groups",xlab = "Cell Type")+
+  rotate_x_text()
+ggsave("figs/final_figs/cibersort_boxplot.pdf",width = 10,height = 6)
+
+##########WGCNA
+library(dplyr)
+library(BioNERO)
+set.seed(20250412) 
+exp_tpm <- readRDS("data/exp_tpm.rds")
+sample_metadata <- data.frame(sample = colnames(exp_tpm)) %>% 
+  mutate(type = substr(sample,1,1)) %>% 
+  as.data.frame() %>% 
+  left_join(
+    .,
+    data.frame(
+      type = c("A","B","C","D","E","F"),
+      type_num = c(1,2,3,4,5,6)
+    )
+  ) %>% select(-type)
+rownames(sample_metadata) <- sample_metadata$sample
+sample_metadata$sample <- NULL
+se <- SummarizedExperiment::SummarizedExperiment(assays = list(tpm = as.matrix(exp_tpm)),
+                                                 colData = sample_metadata)
+exp_filt <- remove_nonexp(se, method = "median", min_exp = 2)
+dim(exp_filt)
+exp_filt <- filter_by_variance(exp_filt, n = 5000)
+exp_filt <- ZKfiltering(exp_filt, cor_method = "spearman")
+dim(exp_filt)
+exp_filt <- PC_correction(exp_filt)
+
+WGCNA::enableWGCNAThreads(nThreads = 40)
+sft <- SFT_fit(exp_filt, net_type = "signed hybrid", cor_method = "spearman")
+sft$plot
+ggsave("figs/final_figs/choose_power_conF.pdf",width = 9, height = 5)
+power <- sft$power
+net <- exp2gcn(exp_filt, net_type = "signed hybrid", SFTpower = power, 
+               cor_method = "spearman")
+
+# Dendro and colors
+plot_dendro_and_colors(net)
+ggsave("figs/final_figs/dend_plot_conF.pdf",width = 6, height = 4)
+# Eigengene networks
+# plot_eigengene_network(net)
+# plot_ngenes_per_module(net)
+###筛选显著相关性的模块
+MEtrait <- module_trait_cor(exp = exp_filt, MEs = net$MEs)
+p <- plot_module_trait_cor(MEtrait)
+pdf("figs/final_figs/trait_cor.pdf", width = 5, height = 5)
+ComplexHeatmap::draw(p)
+dev.off()
+
+saveRDS(MEtrait,"data/final_data/MEtrait_conF.rds")
+saveRDS(net,file = "data/final_data/WGCNA_res_conF.rds")
+saveRDS(exp_filt, file = "data/final_data/WGCNA_exp_conF.rds")
+
+####提取hub gene
+hubs <- get_hubs_gcn(exp_filt, net)
+cyan_hubs <- hubs %>% filter(Module == "cyan")
+saveRDS(cyan_hubs, "data/cyan_hubs_conF.rds")
+
+edges_filtered <- get_edge_list(net, module = "cyan", filter = TRUE)
+dim(edges_filtered)
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs
+)
+
+##savegene
+gene_module <- net$genes_and_modules
+dt <- gene_module %>% filter(Modules == "cyan")
+saveRDS(dt,file = "data/final_data/cyan_module_genes.rds")
+
+######TrendCatcher
+library(dplyr)
+#devtools::install_github("jaleesr/TrendCatcher", dependencies = TRUE, build_vignettes = FALSE)
+expcounts <- readRDS("data/exp_counts.rds") %>% as.data.frame()
+rownames(expcounts) <- expcounts$Gene_ID
+expcounts$Gene_ID <- NULL
+sample_name <- colnames(expcounts)
+sample_name <- data.frame(
+  ori_sample = sample_name
+) %>% mutate(group = substr(ori_sample,1,1)) %>% 
+  left_join(.,
+            data.frame(
+              group = c("A","B","C","D","E","F"),
+              time = c(1,2,3,4,5,6)
+            )) %>% 
+  mutate(rep = gsub("[A-Z]","",ori_sample)) %>% 
+  mutate(cu_name = paste0("B","_",time,"_","Rep",rep))
+colnames(expcounts) <- sample_name$cu_name
+write.csv(expcounts,"data/exp_counts.csv")
+
+library(TrendCatcher)
+master.list <- run_TrendCatcher(count.table.path = "/home/wt/brca/data/exp_counts.csv",
+                                baseline.t = 1,
+                                time.unit = "y",
+                                min.low.count = 1,
+                                para.core.n = 50,
+                                dyn.p.thres = 0.05)
+ft <- master.list$fitted.count
+mt <- master.list$master.table
+
+mapping <- data.table::fread("/data/sde/wt/TCGA/gencode.v22.annotation.gene.probeMap",
+                             data.table = F)
+mt <- mt %>% 
+  left_join(.,mapping %>% 
+              mutate(id = gsub("[.].+","",id)) %>% dplyr::select(id,gene) %>% 
+              rename(Gene = id))
+master.list$master.table$Symbol <- mt$gene 
+saveRDS(master.list,file = "data/final_data/master_list_conF.rds")
+
+draw_TrajClusterGrid(master.list = master.list, min.traj.n = 30,
+                     save.as.PDF = "~/brca/figs/final_figs/cluster_traj_plot.pdf",
+                     pdf.width = 8, pdf.height = 8)
+
+tt <- mt %>% filter(pattern_str == "1y_up_6y") %>% 
+  arrange(desc(dynSign))
+gene.symbol.arr <- c("RAB31","MAPK15","CTHRC1","KCNK1","CDKN1A","SAT1","BGN")
+TrendCatcher::draw_GeneTraj(master.list = master.list, 
+                            gene.symbol.arr = gene.symbol.arr, 
+                            ncol = 7, nrow = 1, 
+                            savepdf.path = "~/brca/figs/final_figs/gene_traj_plot.pdf",
+                            fig.width = 28, fig.height = 5)
+saveRDS(tt,"data/final_data/TrendCatcher_1y_up_6.rds")
+
+####TCGA ML
+tcga_exp <- data.table::fread("data/TCGA-BRCA.star_tpm.tsv.gz",data.table = F)
+mapping <- data.table::fread("data/gencode.v36.annotation.gtf.gene.probemap",data.table = F)
+tcga_exp <- left_join(tcga_exp %>% rename(id = Ensembl_ID),
+                      mapping %>% select(id,gene)) %>% 
+  select(gene,everything()) %>% select(-id) %>% 
+  distinct(gene,.keep_all = T)
+
+tcga_sur <- data.table::fread("data/TCGA-BRCA.survival.tsv.gz",data.table = F)
+need_sample <- colnames(tcga_exp)[2:ncol(tcga_exp)]
+need_sample <- need_sample[which(as.numeric(substr(need_sample,14,15)) < 11)]  
+need_sample <- need_sample[which(substr(need_sample,1,12) %in% tcga_sur$`_PATIENT`)]
+exp_filter <- tcga_exp %>% 
+  select(gene, need_sample)
+sample_info <- left_join(
+  data.frame(samples = colnames(exp_filter)[2:ncol(exp_filter)]) %>% 
+    mutate(patient = substr(samples,1,12)),
+  tcga_sur %>% select(`_PATIENT`,OS.time,OS) %>% rename(patient = `_PATIENT`) %>% distinct_all()
+)
+saveRDS(exp_filter,"data/tcga_brca_filter_exp.rds")
+saveRDS(sample_info,"data/tcga_brca_sampleinfo.rds")
+
+##lasso
+library(dplyr)
+library(glmnet)
+library(survival)
+
+sample_info <- readRDS("data/tcga_brca_sampleinfo.rds")
+exp_filter <- readRDS("data/tcga_brca_filter_exp.rds")
+
+suvr_data <- sample_info %>% select(samples,OS.time,OS) %>% 
+  rename(status = OS, time = OS.time) %>% as.data.frame()
+rownames(suvr_data) <- suvr_data$samples
+suvr_data$samples <- NULL
+exp_m <- exp_filter
+rownames(exp_m) <- exp_m$gene
+exp_m$gene <- NULL
+exp_m <- t(exp_m)
+
+cyan_genes <- readRDS("data/final_data/cyan_module_genes.rds")
+trends_genes <- readRDS("data/final_data/TrendCatcher_1y_up_6.rds")
+
+all_genes <- intersect(colnames(exp_m),
+                       union(cyan_genes$Genes, trends_genes$Symbol))
+set.seed(20250529)
+require(doMC)
+registerDoMC(cores = 80)
+cvfit <- cv.glmnet(exp_m[,all_genes], 
+                   as.matrix(suvr_data), family = "cox", type.measure = "C",
+                   nfolds = 5, parallel = TRUE)
+plot(cvfit)
+cvfit$lambda.min
+
+fit <- glmnet(exp_m[,all_genes], as.matrix(suvr_data), family = "cox")
+gene_cof <- coef(fit, s = cvfit$lambda.min) %>% as.matrix() %>% as.data.frame() %>% 
+  rename(cof = 1)
+gene_cof$genes <- rownames(gene_cof)
+saveRDS(gene_cof, "data/final_data/lasso_res.rds")
+
+#########rf
+library(dplyr)
+exp <- readRDS("data/tcga_brca_filter_exp.rds")
+surv <- readRDS("data/tcga_brca_sampleinfo.rds")
+rownames(exp) <- exp$gene
+exp$gene <- NULL
+exp <- t(exp) %>% as.data.frame()
+which(rownames(exp) != surv$samples)
+exp_surv <- bind_cols(exp,surv %>% select(OS.time,OS))
+
+cyan_genes <- readRDS("data/final_data/cyan_module_genes.rds")
+trends_genes <- readRDS("data/final_data/TrendCatcher_1y_up_6.rds")
+
+all_genes <- intersect(colnames(exp_surv),
+                       union(cyan_genes$Genes, trends_genes$Symbol))
+dt <- exp_surv %>% select(OS.time,OS,all_genes)
+library(randomForestSRC)
+library(parallel)
+options(mc.cores = 60)
+obj <- rfsrc(Surv(OS.time, OS) ~., dt,
+             ntree = 1000, nodesize = 5, nsplit = 50, importance = TRUE)
+
+jk.obj <- subsample(obj)
+imp <- jk.obj$rf$importance
+imp <- jk.obj$rf$importance %>% as.data.frame()
+colnames(imp) <- "importance"
+imp$genes <- rownames(imp)
+saveRDS(imp,"data/final_data/rf_res.rds")
+
+####Boruta
+library(dplyr)
+library(Boruta)
+library(survival)
+boruta_selection <- function(data, maxRuns, time, status) {
+  set.seed(456)
+  boruta_rsf <- Boruta(
+    data,
+    Surv(time, status),
+    respect.unordered.factors = TRUE,
+    maxRuns = maxRuns,
+    doTrace = 0,
+    pValue = 0.05
+  )
+  boruta_rsf
+}
+
+exp <- readRDS("data/tcga_brca_filter_exp.rds")
+surv <- readRDS("data/tcga_brca_sampleinfo.rds")
+rownames(exp) <- exp$gene
+exp$gene <- NULL
+exp <- t(exp) %>% as.data.frame()
+which(rownames(exp) != surv$samples)
+exp_surv <- bind_cols(exp,surv %>% select(OS.time,OS)) %>% 
+  select(OS.time, OS, everything())
+
+cyan_genes <- readRDS("data/final_data/cyan_module_genes.rds")
+trends_genes <- readRDS("data/final_data/TrendCatcher_1y_up_6.rds")
+all_genes <- intersect(colnames(exp_surv),
+                       union(cyan_genes$Genes, trends_genes$Symbol))
+dt <- exp_surv %>% select(OS.time,OS,all_genes)
+
+covariates <- colnames(dt)[3:ncol(dt)]
+boruta_rsf_os <- boruta_selection(dt[covariates], 2000, dt$OS.time, dt$OS)
+
+res <- boruta_rsf_os$ImpHistory
+lz <- lapply(1:ncol(boruta_rsf_os$ImpHistory),
+             function(i)
+               boruta_rsf_os$ImpHistory[is.finite(boruta_rsf_os$ImpHistory[, i]), i])
+names(lz) <- colnames(res)
+median_imp <- sapply(lz, median) %>% as.data.frame()
+colnames(median_imp) <- "imp"
+median_imp$genes <- rownames(median_imp)
+saveRDS(median_imp,"data/final_data/boruta_res.rds")
+
+#########
+library(dplyr)
+lasso_res <- readRDS("data/final_data/lasso_res.rds")
+rf_res <- readRDS("data/final_data/rf_res.rds") %>% 
+  arrange(desc(importance))
+boruta_res <- readRDS("data/final_data/boruta_res.rds") %>% 
+  arrange(desc(imp))
+cyan_genes <- readRDS("data/final_data/cyan_module_genes.rds")
+trends_genes <- readRDS("data/final_data/TrendCatcher_1y_up_6.rds")
+
+cyan_trends_inter <- intersect(cyan_genes$Genes, trends_genes$Symbol)
+
+ml_inter <- intersect(lasso_res$genes[which(lasso_res$cof != 0)],
+                      rf_res$genes[which(rf_res$importance > 0)]) %>% 
+            intersect(.,boruta_res$genes[which(boruta_res$imp > 0)])
+
+final_genes <- intersect(ml_inter, cyan_trends_inter)
+saveRDS(final_genes,"data/final_data/final_gene.rds")
+
+library(ggvenn)
+df1 <- list(WGCNA_res = cyan_genes$Genes,
+            Trends_res = trends_genes$Symbol)
+ggvenn(df1, show_percentage = F, auto_scale=F, fill_color = c("#953984","#FFC82D"))+
+  theme_void()
+ggsave("figs/final_figs/wgcna_trends_veen.pdf",width = 6,height = 5)
+
+df2 <- list(
+  Lasso_res = lasso_res$genes[which(lasso_res$cof != 0)],
+  RF_res = rf_res$genes[which(rf_res$importance > 0)],
+  Boruta_res = boruta_res$genes[which(boruta_res$imp > 0)]
+)
+ggvenn(df2, show_percentage = F, auto_scale=F, 
+       fill_color = c("#F89789","#D4D4D4","#FFDEDE"), fill_alpha = 1)+
+  theme_void()
+ggsave("figs/final_figs/ML_veen.pdf",width = 6,height = 5)
+
+df3 <- list(
+  ml_overlap = ml_inter,
+  before_ml = cyan_trends_inter
+)
+ggvenn(df3, show_percentage = F, auto_scale=F, 
+       fill_color = c("#80A9C9","#7BC289"), fill_alpha = 1)+
+  theme_void()
+ggsave("figs/final_figs/final_veen.pdf",width = 6,height = 5)
+
+##plot
+dt_all <- left_join(
+  lasso_res %>% rename(lasso_score = cof),
+  rf_res %>% rename(rf_score = importance)
+) %>% left_join(.,boruta_res %>% rename(bo_score = imp))
+dt <- dt_all %>% 
+  filter(lasso_score != 0) %>% 
+  filter(rf_score > 0) %>% 
+  filter(bo_score > 0) %>% 
+  mutate(rank_rf = rank(rf_score),
+         rank_bo = rank(bo_score))
+
+dt <- dt %>% 
+  arrange(rf_score)
+dt$genes <- factor(dt$genes, levels = dt$genes)
+library(ggpubr)
+library(viridis)
+p <- ggbarplot(dt %>% slice_max(order_by = rf_score, n = 50),
+               x="genes",y="rf_score", fill = "rf_score")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 0.025)) +
+  scale_fill_viridis(option = "D")
+p1 <- ggpar(p,orientation = "horiz",ylab = "Importance Score",legend.title = "High\n  |\nLow",
+      legend = "right",title = "Random Forest")
+#ggsave("figs/final_figs/rf_res.pdf",width = 10,height = 10)
+
+dt <- dt %>% 
+  arrange(bo_score)
+dt$genes <- factor(dt$genes, levels = dt$genes)
+p <- ggbarplot(dt %>% slice_max(order_by = bo_score, n = 50),
+               x="genes",y="bo_score", fill = "bo_score")+
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 9.5))+
+  scale_fill_viridis(option = "D")
+p2 <- ggpar(p,orientation = "horiz",ylab = "Importance Score",legend.title = "High\n  |\nLow",
+            legend = "right",title = "Boruta")
+library(patchwork)
+p1+p2
+ggsave("figs/final_figs/rf_bo_res.pdf",width = 14,height = 8)
+
+#############更多数据的生存验证
+library(dplyr)
+library(metafor)
+final_gene <- readRDS("~/brca/data/final_data/final_gene.rds")
+all_genes <- vector("list",length(final_gene))
+for (i in seq_along(all_genes)){
+  tmp_gene <- read.csv(paste0("data/final_data/",final_gene[i],"_ResultsDatatable.csv"))
+  tmp_gene <- tmp_gene %>% filter(CA == "Breast Cancer (BC)")
+  tmp_gene <- tmp_gene %>%
+    rowwise() %>% 
+    mutate(hr_lower = strsplit(Coxb_CI,"-")[[1]][1] %>% as.numeric(),
+           hr_upper = strsplit(Coxb_CI,"-")[[1]][2]%>% as.numeric()) %>% ungroup() %>% 
+    filter(!is.infinite(hr_upper)) %>% 
+    filter(Survival == "OS") %>% 
+    rowwise() %>% 
+    mutate(loghr = log(Coxb_HR),
+           seloghr = (log(hr_upper) - log(hr_lower)) / (2 * 1.96)) %>% ungroup()
+  
+  dt <- tmp_gene %>% select(GSE, loghr, seloghr, Coxb_P)
+  formatted_p <- sprintf("%.3f", dt$Coxb_P)
+  meta_result <- rma(yi = loghr, sei = seloghr, data = dt, method = "DL")
+  tmp_res <- list(dt = dt, formatted_p = formatted_p, meta_res = meta_result)
+  all_genes[[i]] <- tmp_res
+  names(all_genes)[i] <- final_gene[i]
+  if (meta_result$pval < 0.05){
+    print(final_gene[i])
+  }
+}
+###3 genes is sig
+# [1] "KCNK1"
+# [1] "RAB31"
+# [1] "MAPK15"
+kcnk1 <- all_genes$KCNK1
+pdf("figs/final_figs/kcnk1_meta.pdf", width = 10, height = 8) 
+forest(kcnk1$meta_res, slab = kcnk1$dt$GSE, atransf = exp, 
+       xlab = "Hazard Ratio", ilab = kcnk1$formatted_p, ilab.xpos = -4,
+       header = F)
+text(-3, 27, "P value", pos = 2, cex = 0.9)
+text(-9, 27, "Study", pos = 2, cex = 0.9)
+text(10, 27, "Estimate [95% CI]", pos = 2, cex = 0.9)
+text(-4, -1, sprintf("%.3f",kcnk1$meta_res$pval), cex = 0.8)
+dev.off()
+
+RAB31 <- all_genes$RAB31
+pdf("figs/final_figs/RAB31_meta.pdf", width = 10, height = 8) 
+forest(RAB31$meta_res, slab = RAB31$dt$GSE, atransf = exp, 
+       xlab = "Hazard Ratio", ilab = RAB31$formatted_p, ilab.xpos = -6,
+       header = F)
+text(-4.5, 34.5, "P value", pos = 2, cex = 0.9)
+text(-13.5, 34.5, "Study", pos = 2, cex = 0.9)
+text(11, 34.5, "Estimate [95% CI]", pos = 2, cex = 0.9)
+text(-6, -1, sprintf("%.3f",RAB31$meta_res$pval), cex = 0.8)
+dev.off()
+
+MAPK15 <- all_genes$MAPK15
+pdf("figs/final_figs/MAPK15_meta.pdf", width = 10, height = 8) 
+forest(MAPK15$meta_res, slab = MAPK15$dt$GSE, atransf = exp, 
+       xlab = "Hazard Ratio", ilab = MAPK15$formatted_p, ilab.xpos = -6,
+       header = F)
+text(-4.5, 21.5, "P value", pos = 2, cex = 0.9)
+text(-12, 21.5, "Study", pos = 2, cex = 0.9)
+text(10, 21.5, "Estimate [95% CI]", pos = 2, cex = 0.9)
+text(-6, -1, sprintf("%.3f",MAPK15$meta_res$pval), cex = 0.8)
+dev.off()
+
+############先看TCGA的
+library(dplyr)
+tcga_exp <- data.table::fread("data/TCGA-BRCA.star_tpm.tsv.gz",data.table = F)
+mapping <- data.table::fread("data/gencode.v36.annotation.gtf.gene.probemap",data.table = F)
+tcga_exp <- left_join(tcga_exp %>% rename(id = Ensembl_ID),
+                      mapping %>% select(id,gene)) %>% 
+  select(gene,everything()) %>% select(-id) %>% 
+  distinct(gene,.keep_all = T)
+knck1 <- tcga_exp %>% filter(gene == "KCNK1") %>% select(-gene) %>% t() %>% 
+  as.data.frame() %>% rename(TPM = 1)
+knck1$sample <- rownames(knck1)
+
+phe <- data.table::fread("data/final_data/TCGA-BRCA.clinical.tsv.gz",data.table = F)
+dt <- phe %>% select(sample,sample_type.samples)
+dt <- left_join(knck1, dt) %>% 
+  rename(sample_type = 3)
+library(ggpubr)
+dt$sample_type <- factor(dt$sample_type,
+                         levels = c("Solid Tissue Normal","Primary Tumor","Metastatic"))
+ggboxplot(dt, x="sample_type",y="TPM", xlab = F)+
+  stat_compare_means()
+
+#########
+phe <- data.table::fread("data/bc_survial/brca_metabric/data_clinical_patient.txt",
+                         data.table = F,skip = "PATIENT_ID")
+phe_sample <- data.table::fread("data/bc_survial/brca_metabric/data_clinical_sample.txt",
+                                data.table = F,skip = "PATIENT_ID")
+exp <- data.table::fread("data/bc_survial/brca_metabric/data_mrna_illumina_microarray.txt",
+                         data.table = F)
+dt <- exp %>% filter(Hugo_Symbol == "KCNK1") %>% 
+  select(-1,-2) %>% t() %>% as.data.frame() %>% rename(exp = 1)
+dt$sample <- rownames(dt)
+dt <- left_join(dt, phe_sample %>% rename(sample = SAMPLE_ID)) %>% 
+  left_join(.,phe %>% select(PATIENT_ID,OS_MONTHS,OS_STATUS))
+library(ggpubr)
+df <- dt %>% filter(!(TUMOR_STAGE %in% c(0,NA)))
+ggboxplot(df, x="TUMOR_STAGE",y="exp",
+          fill = "TUMOR_STAGE",
+          palette = c("1"="#80A9C9","2"="#7BC289","3"="#89C7C1","4"="#D3D3D3"),
+          legend = "none",xlab = "Tumor Stages",ylab = "Normalized Expression")+
+  stat_compare_means()
+ggsave("figs/final_figs/brca_metabric_exp_stage.pdf",width = 6,height = 5)
+
+dt <- dt %>% 
+  mutate(status = gsub(":.+","",OS_STATUS) %>% as.numeric()) %>% 
+  mutate(`KCNK1 Expression` = exp)
+
+library(ezcox)
+show_forest(dt,covariates = "KCNK1 Expression",time = "OS_MONTHS",status = "status")
+ggsave("figs/final_figs/cox_kcnk1_metabric.pdf",width = 8,height = 4)
+
+dt1 <- dt %>% 
+  mutate(`KCNK1` = case_when(
+    exp < median(exp) ~ "Low",
+    exp > median(exp) ~ "High"
+  )) %>% 
+  filter(OS_MONTHS < 200)
+
+library(survival)
+library(survminer)
+fit <- survfit(Surv(OS_MONTHS, status) ~ KCNK1, data = dt1)
+
+# 绘制基础KM曲线
+p <- ggsurvplot(fit, 
+           data = dt1,
+           pval = TRUE,         
+           conf.int = TRUE,      
+           risk.table = TRUE)
+ggsave("figs/final_figs/km_kcnk1_metabric.pdf",
+       plot = arrange_ggsurvplots(p),
+       width = 8,height = 8)
+pdf("figs/final_figs/km_kcnk1_metabric.pdf", width = 8, height = 6)
+print(p)
+dev.off()
+
+#############single cell
+umap <- data.table::fread("data/bc_sc/Whole_miniatlas_umap.coords.tsv",data.table = F,header = T)
+umap <- umap[-1,]
+meta <- data.table::fread("data/bc_sc/Whole_miniatlas_meta.csv",data.table = F)
+meta <- meta[-1,]
+meta <- left_join(meta %>% select(NAME,celltype_major,Patient),
+                  umap)
+rownames(meta) <- meta$NAME
+meta <- meta %>% mutate(X = as.numeric(X), Y= as.numeric(Y))
+library(Seurat)
+obj <- ReadMtx(mtx = "data/bc_sc/BrCa_Atlas_Count_out/matrix.mtx.gz",
+               cells = "data/bc_sc/BrCa_Atlas_Count_out/barcodes.tsv.gz",
+               features = "data/bc_sc/BrCa_Atlas_Count_out/features.tsv.gz")
+obj <- CreateSeuratObject(obj, meta.data = meta)
+obj <- NormalizeData(obj)
+
+normalized_data <- GetAssayData(obj, assay = "RNA", slot = "data")
+gene_exp <- normalized_data["KCNK1",] %>% as.data.frame() %>% rename(exp = 1)
+gene_exp$NAME <- rownames(gene_exp)
+gene_exp <- left_join(gene_exp, meta)
+gene_exp <- gene_exp %>% rename(`Cell Type` = celltype_major)
+library(ggpubr)
+color <- c("#5EB8B4","#269CB8","#F1C051","#F0BBCC",
+           "#EAE6B9","#8B7CB1","#B0C7E3","#225757","#3E4593")
+ggscatter(gene_exp,x="X",y="Y",color ="Cell Type",palette = color,
+          xlab = "UMAP1",ylab="UMAP2")
+ggsave("figs/final_figs/sc_umap_celltype.pdf",width = 9,height = 8)
+
+obj@reductions$umap <- CreateDimReducObject(embeddings = as.matrix(meta %>%
+                                                                     select(X,Y) %>% 
+                                                                     rename(UMAP_1 = 1,
+                                                                            UMAP_2 = 2)), 
+                                                assay = "RNA", key = "UMAP_")
+custom_colors <- colorRampPalette(c("#eeeeee", "#fe7210", "#ea6834"))(10)
+FeaturePlot(obj, features = "KCNK1", 
+            order = T, pt.size = 1,raster=FALSE) +
+  scale_colour_gradientn(colours = custom_colors)+
+  ggtitle("KCNK1 Expression")
+ggsave("figs/final_figs/sc_umap_exp.pdf",width = 9,height = 8)
+
+pseudo_obj <- AggregateExpression(obj, assays = "RNA", 
+                                  return.seurat = T, 
+                                  group.by = c("Patient","celltype_major"))
+pse <- GetAssayData(pseudo_obj, assay = "RNA", slot = "data")
+pse <- pse["KCNK1",] %>% as.data.frame() %>% rename(exp = 1)
+pse$cell <- rownames(pse)
+dt <- pse %>% 
+  mutate(type = gsub(".+_","",cell))
+ggboxplot(dt,x="type",y="exp",ylab = F,
+          color = "type",
+          palette = color,legend = "none")+
+  coord_flip()+
+  stat_compare_means(label.y = 0.7)+
+  labs(y="Pseudo-bulk Expression")
+ggsave("figs/final_figs/sc_psedo_exp.pdf",width = 7,height = 6)
+
+####cor mrna and protein
+library(dplyr)
+mrna <- data.table::fread("data/final_data/CPTAC_BRCA_TPM.txt",data.table = F)
+mrna <- mrna %>% filter(grepl("ENSG00000135750",V1)) %>% 
+  select(-1) %>% t() %>% as.data.frame() %>% rename(mrna_exp = 1)
+mrna$sample <- rownames(mrna)
+pro <- data.table::fread("data/final_data/CPTAC_BRCA_Protein.txt",data.table = F)
+pro <- pro %>% filter(grepl("ENSG00000135750",idx)) %>% 
+  select(-1) %>% t() %>% as.data.frame() %>% rename(protein_exp = 1)
+pro$sample <- rownames(pro)
+
+mrna_pro <- inner_join(mrna, pro) %>% filter(!is.na(protein_exp)) %>% 
+  mutate(protein_exp = log2(protein_exp))
+library(ggpubr)
+ggscatter(mrna_pro, x = "mrna_exp", y = "protein_exp",
+          color = "black",
+          add = "reg.line",  
+          add.params = list(color = "blue", fill = "lightgray"),
+          conf.int = TRUE,
+          cor.coef = TRUE,
+          cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\n"),
+          xlab = "mRNA Expression",
+          ylab = "Protein Abundance"
+)
+ggsave("figs/final_figs/mrna_protein_cor.pdf",width = 7,height = 6)
+
+dt <- data.frame(
+  quantity = c("<25%","25%~75%","25%~75%",">75%"),
+  type = c("Cancer","Cancer","Normal","Cancer"),
+  counts = c(1,3,2,6)
+)
+ggbarplot(dt,x="quantity",y="counts",fill = "type",xlab = "Quantity",ylab = "Sample Counts")
+ggsave("figs/final_figs/protein_ab.pdf",width = 4,height = 5)
+
+##########单基因分析
+library(dplyr)
+library(doParallel)
+library(foreach)
+exp <- readRDS("data/tcga_brca_filter_exp.rds")
+kcnk1_exp <- exp %>% filter(gene == "KCNK1") %>% 
+  select(-1) %>% t() %>% as.data.frame() %>% rename(exp = 1) %>% 
+  mutate(sample = rownames(.)) %>% 
+  mutate(exp_type = case_when(
+    exp < quantile(exp)[2] ~ "L",
+    exp > quantile(exp)[4] ~ "H",
+    TRUE ~ "others"
+  )) %>% filter(exp_type != "others") %>% 
+  mutate(new_name = paste0(exp_type,row_number(.)))
+exp_filter <- exp %>% select(gene,kcnk1_exp$sample)
+colnames(exp_filter)[2:ncol(exp_filter)] <- kcnk1_exp$new_name
+rownames(exp_filter) <- exp_filter$gene
+exp_filter$gene <- NULL
+diff_res <- get_diff_bulk(group = "L-H",df = exp_filter, n_cores = 100)
+diff_res <- diff_res %>% 
+  mutate(log2fc = log2(fc + 0.001))
+saveRDS(diff_res,"data/final_data/kcnk1_diff_exp.rds")
+
+dt <- diff_res %>% 
+  filter(!(fc == 0 & diff == 0)) %>% 
+  mutate(log2fc = log2(fc + 0.1)) %>% 
+  filter(gene != "KCNK1")
+###火山图
+library(EnhancedVolcano)
+EnhancedVolcano(
+  dt,
+  lab = dt$gene,
+  x = "log2fc",
+  y = "p_value",
+  pCutoffCol = "p_adj",
+  pCutoff = 0.05,
+  title = "KCNK1 High VS Low"
+)
+ggsave("figs/final_figs/KCNK1_volcano.pdf",width = 10,height = 10)
+
+########GSEA
+library(dplyr)
+dt <- readRDS("data/final_data/kcnk1_diff_exp.rds")
+library(fgsea)
+pat <- gmtPathways("data/final_data/c5.go.v2025.1.Hs.symbols.gmt")
+pat2 <- gmtPathways("~/melanoma/data/h.all.v2024.1.Hs.symbols.gmt")
+pat <- c(pat,pat2)
+dt <- dt %>% 
+  filter(!(diff == 0 & fc == 0)) %>% 
+  filter(!is.nan(p_value)) %>% 
+  mutate(stat = log2fc * (-log10(p_value)))
+ranking <- dt$stat
+names(ranking) <- dt$gene
+res <- fgsea(pathways = pat, stats = ranking, minSize = 5, maxSize = 2000, nproc = 100)
+saveRDS(res,"data/final_data/kcnk1_gsea_res.rds")
+
+###gsva
+library(GSVA)
+exp <- readRDS("data/tcga_brca_filter_exp.rds")
+rownames(exp) <- exp$gene
+exp$gene <- NULL
+gsvapar <- gsvaParam(as.matrix(exp), pat)
+library(BiocParallel)
+bp_param <- MulticoreParam(workers = 60)
+gsva_res <- gsva(gsvapar, BPPARAM = bp_param)
+saveRDS(gsva_res,"data/final_data/tcga_go_gsva.rds")
+
+exp <- readRDS("data/tcga_brca_filter_exp.rds")
+kcnk1_exp <- exp %>% filter(gene == "KCNK1") %>%
+  select(-1) %>% t() %>% as.data.frame() %>% rename(exp = 1) %>%
+  mutate(sample = rownames(.)) %>%
+  mutate(exp_type = case_when(
+    exp < quantile(exp)[2] ~ "L",
+    exp > quantile(exp)[4] ~ "H",
+    TRUE ~ "others"
+    )) %>% filter(exp_type != "others") %>%
+  mutate(new_name = paste0(exp_type,row_number(.)))
+
+gsva_filter <- gsva_res %>% as.data.frame() %>% 
+  select(kcnk1_exp$sample)
+colnames(gsva_filter) <- kcnk1_exp$new_name
+gsva_diff <- get_diff_bulk(group = "L-H",df = gsva_filter, n_cores = 60)
+saveRDS(gsva_diff,"data/final_data/kcnk1_gsva_diff.rds")
+
+####
+library(dplyr)
+gsva_res <- readRDS("data/final_data/kcnk1_gsva_diff.rds")
+gsea_res <- readRDS("data/final_data/kcnk1_gsea_res.rds")
+library(ComplexHeatmap)
+library(circlize)
+
+up_pat1 <- gsva_res %>% filter(abs(diff) > 0 & p_adj < 0.05) %>% filter(per_sig_frac == 0)
+up_pat2 <- gsea_res %>% filter(abs(NES) > 1 & padj < 0.05)
+dt <- inner_join(up_pat2,up_pat1 %>% rename(pathway = gene) %>% select(pathway, diff, p_adj))
+dt <- dt %>% 
+  mutate(type = gsub("_.+","",pathway) %>% gsub("GO","",.))
+
+dt1 <- dt %>% select(pathway,NES) %>% 
+  mutate(sim_name = gsub("GO[A-Z][A-Z]_","",pathway)) %>% 
+  select(-pathway) %>% 
+  rowwise() %>% 
+  mutate(sim_name = stringr::str_to_sentence(gsub("_"," ",sim_name))) %>% ungroup() %>% 
+  as.data.frame()
+rownames(dt1) <- dt1$sim_name
+dt1$sim_name <- NULL
+col_fun <- colorRamp2(quantile(dt1$NES),c("#F7F7E9","#F3E1AF","#DBBF92","#D78851","#BE5C37"))
+go_col <- c(BP = "red", CC = "blue", MF = "green")
+p1 <- Heatmap(dt1,cluster_rows = F,cluster_columns = F, row_names_side = "left",
+              row_names_max_width = max_text_width(
+                rownames(dt1)
+              ),name = "GSEA NES",col = col_fun, show_column_names = F,
+              row_split = dt$type,
+              row_names_gp = gpar(col = go_col),
+              border = T,
+              rect_gp = gpar(col="white",lwd=2))
+p1
+dt2 <- dt %>% select(pathway,diff) %>% 
+  mutate(sim_name = gsub("GO[A-Z][A-Z]_","",pathway)) %>% 
+  select(-pathway) %>% 
+  rowwise() %>% 
+  mutate(sim_name = stringr::str_to_sentence(gsub("_"," ",sim_name))) %>% ungroup() %>% 
+  as.data.frame()
+rownames(dt2) <- dt2$sim_name
+dt2$sim_name <- NULL
+col_fun2 <- colorRamp2(quantile(dt2$diff),c("#FBF9FA","#DEDCEA","#AFB7D7","#8197C6","#507AAF"))
+p2 <- Heatmap(dt2, cluster_rows = F, cluster_columns = F, show_row_names = F,
+              name = "GSVA Difference",col = col_fun2, show_column_names = F,
+              border = T,rect_gp = gpar(col="white",lwd=2))
+p2
+p3 <- p1 + p2
+pdf("figs/final_figs/gsva_gsea_kcnk1.pdf",width = 9,height = 8)
+draw(p3)
+dev.off()
+
+########correlation
+exp <- readRDS("data/tcga_brca_filter_exp.rds")
+rownames(exp) <- exp$gene
+exp$gene <- NULL
+dt <- exp["KCNK1",] %>% t() %>% as.data.frame() %>% rename(exp = 1)
+all_sd <- apply(exp,1,sd)
+all_sd <- all_sd[all_sd > 0.5] %>% names()
+
+library(doParallel)
+library(foreach)
+#create the cluster
+my.cluster <- parallel::makeCluster(
+  50, 
+  type = "PSOCK"
+)
+#register it to be used by %dopar%
+doParallel::registerDoParallel(cl = my.cluster)
+res <- foreach(
+  i = all_sd,
+  .export = c("exp","dt"),
+  .packages = "dplyr"
+) %dopar% {
+  tmp_dt <- exp[i,] %>% t() %>% as.data.frame() %>% rename(exp_a = 1)
+  tmp_res <- cor.test(tmp_dt$exp_a, dt$exp, method = "sp")
+  return(
+    data.frame(
+      gene = i,
+      cor = tmp_res$estimate[[1]],
+      p_value = tmp_res$p.value
+    )
+  )
+}
+parallel::stopCluster(cl = my.cluster)
+
+res <- bind_rows(res)
+res <- res %>% filter(gene != "KCNK1")
+res$padj <- p.adjust(res$p_value,"fdr")
+saveRDS(res,"data/final_data/exp_cor.rds")
+
+res <- res %>% 
+  mutate(stats = cor * (-log10(p_value)))
+stats <- res$stats
+names(stats) <- res$gene
+
+library(fgsea)
+pat <- gmtPathways("data/final_data/c5.go.v2025.1.Hs.symbols.gmt")
+pat2 <- gmtPathways("~/melanoma/data/h.all.v2024.1.Hs.symbols.gmt")
+pat <- c(pat,pat2)
+gse_res <- fgsea(pathways = pat, stats = stats, minSize = 5, maxSize = 2000, nproc = 100) %>% 
+  as.data.frame()
+
+pat_genes <- sapply(pat,
+                    function(x){
+                      paste(x,collapse = "/")
+                    }) %>% as.data.frame() %>% rename(pathwayGenes = 1)
+pat_genes$pathway <- rownames(pat_genes)
+gse_res <- left_join(gse_res,pat_genes)
+colnames(gse_res)[1] <- "Description"
+colnames(gse_res)[7] <- "Size"
+saveRDS(gse_res,"data/final_data/cor_gsea.rds")
+
+library(aPEAR)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(DOSE)
+data(geneList)
+geneList <- sort(stats, decreasing = TRUE)
+enrich <- gseGO(geneList, OrgDb = org.Hs.eg.db, ont = 'ALL', keyType = "SYMBOL")
+saveRDS(enrich,"data/final_data/cor_gsea_clusterprofile.rds")
+tt <- enrich@result
+
+enrichmentNetwork(enrich@result, 
+                  drawEllipses = TRUE, repelLabels=TRUE, fontSize = 4,
+                  colorBy = "p.adjust", colorType="pval",
+                  simMethod = "cosine", clustMethod = "hier",
+                  clustNameMethod = "hits")
+ggsave("figs/final_figs/kcnk1_cor_enrich.pdf",width = 16,height = 14)
+
+
+

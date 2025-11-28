@@ -1,0 +1,26 @@
+{
+    "id": "26E2F7CC",
+    "path": "~/brca/scripts/final_figs.R",
+    "project_path": null,
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1764225464705.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "1199,43",
+        "scrollLine": "0"
+    },
+    "folds": "12|61|32|0|\n34|46|72|0|\n",
+    "lastKnownWriteTime": 1764224802,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1764225477013,
+    "read_only": false,
+    "read_only_alternatives": []
+}
